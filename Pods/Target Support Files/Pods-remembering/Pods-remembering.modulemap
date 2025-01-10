@@ -1,0 +1,6 @@
+framework module Pods_remembering {
+  umbrella header "Pods-remembering-umbrella.h"
+
+  export *
+  module * { export * }
+}
