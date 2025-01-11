@@ -7,13 +7,13 @@
 import SwiftUI
 
 struct WordQuizStatus: View {
-    
+
     var longTermCount = 0
     var shortTermCount = 0
     var newWordCount = 0
-    
+
     var body: some View {
-        HStack(spacing: 32){
+        HStack(spacing: 32) {
             VStack {
                 Text("장기 복습")
                 Text(String(self.longTermCount)).fontWeight(.bold)

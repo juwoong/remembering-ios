@@ -7,7 +7,7 @@
 import SwiftUI
 
 struct WordQuizView: View {
-    
+
     @State var termCount = 0
     var body: some View {
         NavigationView {
@@ -17,25 +17,23 @@ struct WordQuizView: View {
                         .padding(10)
                 }.frame(
                     maxWidth: .infinity
-                    
                 )
                 .background(Color.gray.opacity(0.2))
                 .cornerRadius(30)
-                
+
                 VStack {
                     Text("?")
                         .padding(10)
                 }.frame(
                     maxWidth: .infinity
-                    
                 )
                 .background(Color.gray.opacity(0.2))
                 .cornerRadius(30)
-                
+
                 Button("테스트용 버튼이에요") {
                     self.termCount += 1
                 }
-            
+
                 WordQuizStatus(
                     longTermCount: self.termCount,
                     shortTermCount: self.termCount,
@@ -45,7 +43,6 @@ struct WordQuizView: View {
         }
     }
 }
-
 
 #Preview {
     WordQuizView()

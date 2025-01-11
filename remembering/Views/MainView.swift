@@ -1,5 +1,5 @@
 //
-//  ContentView.swift
+//  MainView.swift
 //  remembering
 //
 //  Created by 배주웅 on 1/11/25.
@@ -19,11 +19,9 @@ struct MainView: View {
                         Image(systemName: "flame.fill").foregroundColor(.red)
                     }
                 }
-                
+
                 Button("오늘의 레슨", systemImage: "calendar") {}.buttonStyle(.bordered)
                 Button("나의 단어", systemImage: "person.fill") {}.buttonStyle(.bordered)
-                
-
             }
             .navigationBarTitle("Rememberin: Japanese Word")
             .navigationBarTitleDisplayMode(.inline)

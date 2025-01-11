@@ -8,12 +8,12 @@
 import SwiftUI
 
 struct WordCardAction: View {
-    
+
     var retryMinute: String
     var difficultyMinute: String
     var correctMinute: String
     var easyMinute: String
-    
+
     var body: some View {
         HStack(spacing: 12) {
             Spacer()
@@ -40,7 +40,6 @@ struct WordCardAction: View {
         }
     }
 }
-
 
 #Preview {
     WordCardAction(
