@@ -10,11 +10,12 @@ struct WordQuizView: View {
 
     @State var termCount = 21
     @State var displayAnswerCard = false
+    @State var isBookmarked: Bool = false
     var body: some View {
         NavigationView {
             ZStack {
-                GeometryReader {
-                    geometry in VStack {
+                GeometryReader { geometry in
+                    VStack {
                         VStack {
                             Text("大使館")
                                 .padding(10)
@@ -26,13 +27,28 @@ struct WordQuizView: View {
                         .cornerRadius(30)
 
                         if self.displayAnswerCard {
-                            VStack {
-                                Text("대사관")
-                                    .font(.largeTitle)
-                                    .padding(.bottom, 8)
+                            ZStack{
                                 HStack {
-                                    Image(systemName: "speaker.wave.2.fill")
-                                    Text("taishikan")
+                                    Spacer()
+                                    VStack {
+                                        Image(
+                                            systemName: self.isBookmarked ? "star.fill" : "star"
+                                        ).foregroundColor(self.isBookmarked ? Color.orange : Color.black
+                                        ).onTapGesture {
+                                            self.isBookmarked.toggle()
+                                        }
+                                        Spacer()
+                                    }.padding(.trailing, 16)
+                                        .padding(.top, 16)
+                                }
+                                VStack {
+                                    Text("대사관")
+                                        .font(.largeTitle)
+                                        .padding(.bottom, 8)
+                                    HStack {
+                                        Image(systemName: "speaker.wave.2.fill")
+                                        Text("taishikan")
+                                    }
                                 }
                             }
                             .frame(width: geometry.size.width, height: geometry.size.height / 2)
