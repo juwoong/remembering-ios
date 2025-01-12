@@ -1,0 +1,41 @@
+included:
+
+excluded:
+  - Pods
+
+disabled_rules:
+  - force_cast
+  - force_try
+  - identifier_name
+  - type_name
+  - type_body_length
+  - function_body_length
+  - shorthand_operator
+  - cyclomatic_complexity
+  - function_parameter_count
+  - large_tuple
+  - vertical_whitespace
+  - trailing_whitespace
+  - unused_capture_list
+  - empty_enum_arguments
+
+line_length:
+  warning: 200
+  error: 500
+  ignores_comments: true
+  ignores_urls: true
+
+file_length:
+  warning: 600
+  error: 1500
+
+todo:
+  included: ".*.swift"
+  match_kinds: comment
+  severity: warning
+
+opt_in_rules:
+  - indentation_width
+  - empty_count
+  - empty_string
+출처: https://doggyfootstep.tistory.com/17 [iOS'DoggyFootstep:티스토리]

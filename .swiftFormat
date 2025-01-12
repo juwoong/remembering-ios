@@ -1,0 +1,12 @@
+--swiftversion 5.1
+# file options
+ 
+--exclude Pods
+# format options
+--indent 4
+--maxwidth 100
+--disable blankLinesAtStartOfScope
+--disable emptyBraces
+--stripunusedargs closure-only
+--ifdef no-indent
+
