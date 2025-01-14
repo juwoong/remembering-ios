@@ -9,6 +9,10 @@ import SwiftUI
 
 @main
 struct rememberingApp: App {
+    init() {
+        SQLiteDatabase.initialize()
+    }
+    
     var body: some Scene {
         WindowGroup {
             MainView()

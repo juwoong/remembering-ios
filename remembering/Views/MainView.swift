@@ -8,6 +8,11 @@
 import SwiftUI
 
 struct MainView: View {
+    
+    func loadData() {
+        SQLiteDatabase.read()
+    }
+    
 
     var body: some View {
         NavigationView {
@@ -30,6 +35,8 @@ struct MainView: View {
                     Button("", systemImage: "gear") {}
                 }
             }
+        }.onAppear {
+            loadData()
         }
     }
 }
