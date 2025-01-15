@@ -35,40 +35,31 @@ class SQLiteDatabase {
         }
     }
     
-    static func read() {
+    static func read<T: SQLParsable>(sql: String, to: T.Type) -> [T] {
         var database: OpaquePointer?
         let query = "SELECT * FROM datas LIMIT 10;"
         
         let dbPath = getDatabasePath()
         if sqlite3_open(dbPath, &database) != SQLITE_OK {
             print("error to open database")
-            return
+            return []
         }
         
         var statement: OpaquePointer?
         if sqlite3_prepare(database, query, -1, &statement, nil) != SQLITE_OK {
             let errmsg = String(cString: sqlite3_errmsg(database))
             print("Error to prepare statement: \(errmsg)")
-        }
-        /*
-         CREATE TABLE IF NOT EXISTS datas (
-             id INTEGER PRIMARY KEY AUTOINCREMENT,
-             question TEXT NOT NULL,
-             description TEXT NOT NULL,
-             priority INTEGER NOT NULL,
-             is_generated BOOLEAN NOT NULL
-         );
-
-         */
-        
-        while(sqlite3_step(statement) == SQLITE_ROW) {
-            let id = Int(sqlite3_column_int(statement, 0))
-            let question = String(cString: sqlite3_column_text(statement, 1))
-            let description = String(cString: sqlite3_column_text(statement, 2))
-            let priority = Int(sqlite3_column_int(statement, 3))
-            let is_generated = Int(sqlite3_column_int(statement, 0)) == 1
             
-            print("Data(\(id), \(question), \(description), \(priority), \(is_generated))")
+            return []
         }
+        
+        
+        var results: [T] = []
+        while(sqlite3_step(statement) == SQLITE_ROW) {
+            let result = createDTOInstance(to: to, pointer: statement)
+            results.append(result)
+        }
+        
+        return results
     }
 }

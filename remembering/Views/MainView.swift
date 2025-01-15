@@ -10,12 +10,12 @@ import SwiftUI
 struct MainView: View {
     
     func loadData() {
-        SQLiteDatabase.read()
+        SQLiteDatabase.read(sql: "SELECT * FROM datas LIMIT 10;", to: ContentDataDto.self)
     }
     
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             VStack(spacing: 20) {
                 HStack {
                     Label {
@@ -24,8 +24,15 @@ struct MainView: View {
                         Image(systemName: "flame.fill").foregroundColor(.red)
                     }
                 }
+                
+                NavigationLink(destination: WordQuizView()) {
+                    HStack {
+                        Image(systemName: "calendar")
+                        Text("오늘의 레슨")
+                    }
+                }
 
-                Button("오늘의 레슨", systemImage: "calendar") {}.buttonStyle(.bordered)
+         
                 Button("나의 단어", systemImage: "person.fill") {}.buttonStyle(.bordered)
             }
             .navigationBarTitle("Rememberin: Japanese Word")
