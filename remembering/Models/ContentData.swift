@@ -23,15 +23,12 @@ struct ContentDataModel: SQLModel {
     let priority: Int
     let isGenerated: Bool
     
-    static func parse(pointer: OpaquePointer?) -> Self {
-        let id = Int(sqlite3_column_int(pointer, 0))
-        let question = String(cString: sqlite3_column_text(pointer, 1))
-        let _description = String(cString: sqlite3_column_text(pointer, 2))
-        let priority = Int(sqlite3_column_int(pointer, 3))
-        let isGenerated = Int(sqlite3_column_int(pointer, 4)) == 1
-        
-        let jsonDecoder = JSONDecoder()
-        let description = try! jsonDecoder.decode(DescriptionJSON.self, from: Data(_description.utf8))
+    static func parse(stmt: OpaquePointer?) -> Self {
+        let id = Int(sqlite3_column_int(stmt, 0))
+        let question = String(cString: sqlite3_column_text(stmt, 1))
+        let description = parseJSONLikeColumn(stmt: stmt , index: 2, to: DescriptionJSON.self)!
+        let priority = Int(sqlite3_column_int(stmt, 3))
+        let isGenerated = Int(sqlite3_column_int(stmt, 4)) == 1
         
         return Self(id: id, question: question, description: description, priority: priority, isGenerated: isGenerated)
     }

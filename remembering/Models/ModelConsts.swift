@@ -24,4 +24,3 @@ enum ScheduleState: Int {
     case IN_PROGRESS = 1
     case FINISHED = 2
 }
-

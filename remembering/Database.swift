@@ -8,13 +8,13 @@ import Foundation
 import SQLite3
 
 
-func parseNullableDatetimeColumn(stmt: OpaquePointer?, index: Int) -> Date? {
+func parseNullableDatetimeColumn(stmt: OpaquePointer?, index: Int32) -> Date? {
     if stmt == nil {
         return nil
     }
     
-    if sqlite3_column_type(stmt, Int32(index)) != SQLITE_NULL {
-        if let cString = sqlite3_column_text(stmt, 0) {
+    if sqlite3_column_type(stmt, index) != SQLITE_NULL {
+        if let cString = sqlite3_column_text(stmt, index) {
             let dateString = String(cString: cString)
             print("Date: \(dateString)")
             
@@ -23,6 +23,30 @@ func parseNullableDatetimeColumn(stmt: OpaquePointer?, index: Int) -> Date? {
             formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
             if let date = formatter.date(from: dateString) {
                 return date
+            }
+        }
+    }
+    
+    return nil
+}
+
+func parseJSONLikeColumn<T: Decodable>(stmt: OpaquePointer?, index: Int32, to: T.Type) -> T? {
+    if stmt == nil {
+        return nil
+    }
+    
+    if sqlite3_column_type(stmt, index) != SQLITE_NULL {
+        if let cString = sqlite3_column_text(stmt, index) {
+            let jsonString = String(cString: cString)
+            
+            if let jsonData = jsonString.data(using: .utf8) {
+                do {
+                    let result = try JSONDecoder().decode(to, from: jsonData)
+                    
+                    return result
+                } catch {
+                    print("Error during parse JSON: \(error)")
+                }
             }
         }
     }
