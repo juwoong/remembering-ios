@@ -6,11 +6,11 @@
 //
 import SQLite3
 
-protocol SQLParsable {
+protocol SQLModel {
     static func parse(pointer: OpaquePointer?) -> Self
     func toString() -> String
 }
 
-func createDTOInstance<T: SQLParsable>(to: T.Type, pointer: OpaquePointer?) -> T {
+func createDTOInstance<T: SQLModel>(to: T.Type, pointer: OpaquePointer?) -> T {
     return to.parse(pointer: pointer)
 }

@@ -8,12 +8,6 @@
 import SwiftUI
 
 struct MainView: View {
-    
-    func loadData() {
-        SQLiteDatabase.read(sql: "SELECT * FROM datas LIMIT 10;", to: ContentDataDto.self)
-    }
-    
-
     var body: some View {
         NavigationStack {
             VStack(spacing: 20) {
@@ -42,8 +36,6 @@ struct MainView: View {
                     Button("", systemImage: "gear") {}
                 }
             }
-        }.onAppear {
-            loadData()
         }
     }
 }

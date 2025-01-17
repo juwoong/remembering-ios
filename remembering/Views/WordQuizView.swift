@@ -13,10 +13,10 @@ struct WordQuizView: View {
     @State var isBookmarked: Bool = false
     @State var index = 0
     @State var studyFinished: Bool = false
-    var contents: [ContentDataDto]
+    var contents: [ContentDataModel] // TODO: change this to card lol
     
     init() {
-        self.contents = SQLiteDatabase.read(sql: "SELECT * FROM datas LIMIT 20;", to: ContentDataDto.self)
+        self.contents = SQLiteDatabase.read(sql: "SELECT * FROM datas LIMIT 20;", to: ContentDataModel.self)
     }
     
     var body: some View {

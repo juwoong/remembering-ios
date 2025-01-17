@@ -16,7 +16,7 @@ struct DescriptionJSON: Codable {
     }
 }
 
-struct ContentDataDto: SQLParsable {
+struct ContentDataModel: SQLModel {
     let id: Int
     let question: String
     let description: DescriptionJSON

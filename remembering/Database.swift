@@ -8,6 +8,29 @@ import Foundation
 import SQLite3
 
 
+func parseNullableDatetimeColumn(stmt: OpaquePointer?, index: Int) -> Date? {
+    if stmt == nil {
+        return nil
+    }
+    
+    if sqlite3_column_type(stmt, Int32(index)) != SQLITE_NULL {
+        if let cString = sqlite3_column_text(stmt, 0) {
+            let dateString = String(cString: cString)
+            print("Date: \(dateString)")
+            
+            // DateFormatter를 이용해 Date 타입으로 변환
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+            if let date = formatter.date(from: dateString) {
+                return date
+            }
+        }
+    }
+    
+    return nil
+}
+
+
 class SQLiteDatabase {
     static let dbName: String = "content.db"
     
@@ -35,7 +58,7 @@ class SQLiteDatabase {
         }
     }
     
-    static func read<T: SQLParsable>(sql: String, to: T.Type) -> [T] {
+    static func read<T: SQLModel>(sql: String, to: T.Type) -> [T] {
         var database: OpaquePointer?
         let query = "SELECT * FROM datas LIMIT 10;"
         
@@ -52,7 +75,6 @@ class SQLiteDatabase {
             
             return []
         }
-        
         
         var results: [T] = []
         while(sqlite3_step(statement) == SQLITE_ROW) {
