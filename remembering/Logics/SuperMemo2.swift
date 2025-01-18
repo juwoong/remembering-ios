@@ -113,40 +113,52 @@ class SuperMemo2 {
     }
     
     private func handleExponentialPhase(_ card: LearningCard, _ choice: LearningChoice) -> SuperMemo2Result {
-        
-        return SuperMemo2Result(.EXPONENTIAL)
+
+        switch choice {
+        case .AGAIN:
+            let nextEase = max(1.3, card.ease * 0.8)
+            
+            if cfg.relearnIntervals.count > 0 {
+                return SuperMemo2Result(.RELEARN, step: 0, ease: nextEase, interval: cfg.relearnIntervals[0])
+            }
+            
+            var nextInterval = max(
+                Int(Double(card.interval) * Global.LAPSE_INTERVAL_MULTIPLIER),
+                SuperMemo2.daysToMinutes(cfg.minDays)
+            )
+            // TODO: appliy fuzzed intervals
+            
+            return SuperMemo2Result(.EXPONENTIAL, ease: nextEase, interval: nextInterval, leech: card.leech + 1)
+        case .HARD:
+            let nextEase = max(1.3, card.ease * 0.85)
+            // TODO: apply day adjustments
+            
+            let nextInterval = min(
+                Int(Double(card.interval) * cfg.hardIntervalMultiplier * cfg.intervalModifier),
+                SuperMemo2.daysToMinutes(cfg.maxDays)
+            )
+            
+            return SuperMemo2Result(.EXPONENTIAL, ease: nextEase, interval: nextInterval)
+        case .GOOD:
+            // TODO: apply day adjustment
+            let nextInterval = min(
+                Int(Double(card.interval) * card.ease * cfg.intervalModifier),
+                SuperMemo2.daysToMinutes(cfg.maxDays)
+            )
+            // TODO: apply fuzzed interval function
+            
+            return SuperMemo2Result(.EXPONENTIAL, ease: card.ease, interval: nextInterval)
+        case .EASY:
+            let nextEase = card.ease * 1.15
+            // TODO: apply day adjustment
+            let nextInterval = min(
+                Int(Double(card.interval) * card.ease * cfg.intervalModifier * cfg.easyBonus),
+                SuperMemo2.daysToMinutes(cfg.maxDays)
+            )
+            
+            return SuperMemo2Result(.EXPONENTIAL, ease: nextEase, interval: nextInterval)
+        }
     }
-    
-    /*
-     def _handle_relearn(self, card: Card, choice: Choice) -> SM2Result:
-         step = card.step
-
-         if len(self.relearn_intervals) == 0 or card.step >= len(self.relearn_intervals):
-             interval = card.interval * card.ease
-             return SM2Result(phase=Phase.EXPONENTIAL, step=None, interval=interval, ease=card.ease, leech=card.leech + 1)
-
-         if choice == Choice.AGAIN:
-             return SM2Result(phase=Phase.RELEARN, step=0, interval=self.relearn_intervals[0], leech=card.leech + 1)
-         elif choice == Choice.HARD:
-             if step == 0 and len(self.relearn_intervals) == 1:
-                 return SM2Result(phase=Phase.RELEARN, step=0, interval=int(self.relearn_intervals[0] * 1.5))
-             elif step == 0 and len(self.relearn_intervals) > 1:
-                 return SM2Result(phase=Phase.RELEARN, step=0, interval=(self.relearn_intervals[step] + self.relearn_intervals[step+1]) / 2)
-
-             return SM2Result(phase=Phase.RELEARN, step=0, interval=self.relearn_intervals[step])
-         elif choice == Choice.GOOD:
-             if step + 1 == len(self.relearn_intervals):
-                 return SM2Result(phase=Phase.EXPONENTIAL, step=None, interval=card.interval * card.ease)
-
-             return SM2Result(phase=Phase.RELEARN, step=step + 1, interval=self.relearn_intervals[step+1])
-         elif choice == Choice.EASY:
-             interval = min(
-                 card.interval * card.ease * self.easy_bonus,
-                 1440 * 36500 # 100 years
-             )
-
-             return SM2Result(phase=Phase.EXPONENTIAL, step=None, interval=interval)
-     */
     
     private func handleRelearnPhase(_ card: LearningCard, _ choice: LearningChoice) -> SuperMemo2Result {
         

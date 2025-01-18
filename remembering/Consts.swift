@@ -7,4 +7,5 @@
 
 struct Global {
     static let DAY_IN_MINUTES = 1440
+    static let LAPSE_INTERVAL_MULTIPLIER: Double = 0.1
 }
