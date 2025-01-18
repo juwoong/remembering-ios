@@ -32,7 +32,7 @@ struct SuperMemo2Config {
     let defaultEase: Double
     let graduatingInterval: Int
     let easyInterval: Int
-    let easyBonus: Int
+    let easyBonus: Double
     let intervalModifier: Double
 }
 
@@ -44,7 +44,7 @@ class SuperMemo2 {
         self.cfg = cfg
     }
     
-    static func dayToMinutes(_ day: Int) -> Int {
+    static func daysToMinutes(_ day: Int) -> Int {
         return day * Global.DAY_IN_MINUTES
     }
     
@@ -85,32 +85,6 @@ class SuperMemo2 {
         return LearningCard(id: 0, dataId: dataId, phase: phase, interval: 0, ease: self.cfg.defaultEase)
     }
     
-    /**
-     def _handle_learning(self, card: Card, choice: Choice) -> SM2Result:
-         """
-         return the next step and interval for the card
-         """
-         step = card.step
-
-         if choice == Choice.AGAIN:
-             return SM2Result(phase=Phase.LEARNING, step=0, interval=INITIAL_INTERVALS[0], leech=card.leech + 1)
-         elif choice == Choice.HARD:
-             if step == 0 and len(self.learn_intervals) == 1:
-                 return SM2Result(phase=Phase.LEARNING, step=0, interval=int(self.learn_intervals[0] * 1.5))
-             elif step == 0 and len(self.learn_intervals) > 1:
-                 return SM2Result(phase=Phase.LEARNING, step=0, interval=(self.learn_intervals[step] + self.learn_intervals[step+1]) / 2)
-
-             return SM2Result(phase=Phase.LEARNING, step=step, interval=self.learn_intervals[step])
-         elif choice == Choice.GOOD:
-             if step + 1 == len(self.learn_intervals):
-                 return SM2Result(phase=Phase.EXPONENTIAL, step=None, ease=self.default_ease, interval=self.graduating_interval)
-
-             return SM2Result(phase=Phase.LEARNING, step=step + 1, interval=self.learn_intervals[step+1])
-         elif choice == Choice.EASY:
-             return SM2Result(phase=Phase.EXPONENTIAL, step=None, interval=self.easy_interval)
-     
-     */
-    
     private func handleLearnPhase(_ card: LearningCard, _ choice: LearningChoice) -> SuperMemo2Result {
         
         switch choice {
@@ -143,9 +117,74 @@ class SuperMemo2 {
         return SuperMemo2Result(.EXPONENTIAL)
     }
     
+    /*
+     def _handle_relearn(self, card: Card, choice: Choice) -> SM2Result:
+         step = card.step
+
+         if len(self.relearn_intervals) == 0 or card.step >= len(self.relearn_intervals):
+             interval = card.interval * card.ease
+             return SM2Result(phase=Phase.EXPONENTIAL, step=None, interval=interval, ease=card.ease, leech=card.leech + 1)
+
+         if choice == Choice.AGAIN:
+             return SM2Result(phase=Phase.RELEARN, step=0, interval=self.relearn_intervals[0], leech=card.leech + 1)
+         elif choice == Choice.HARD:
+             if step == 0 and len(self.relearn_intervals) == 1:
+                 return SM2Result(phase=Phase.RELEARN, step=0, interval=int(self.relearn_intervals[0] * 1.5))
+             elif step == 0 and len(self.relearn_intervals) > 1:
+                 return SM2Result(phase=Phase.RELEARN, step=0, interval=(self.relearn_intervals[step] + self.relearn_intervals[step+1]) / 2)
+
+             return SM2Result(phase=Phase.RELEARN, step=0, interval=self.relearn_intervals[step])
+         elif choice == Choice.GOOD:
+             if step + 1 == len(self.relearn_intervals):
+                 return SM2Result(phase=Phase.EXPONENTIAL, step=None, interval=card.interval * card.ease)
+
+             return SM2Result(phase=Phase.RELEARN, step=step + 1, interval=self.relearn_intervals[step+1])
+         elif choice == Choice.EASY:
+             interval = min(
+                 card.interval * card.ease * self.easy_bonus,
+                 1440 * 36500 # 100 years
+             )
+
+             return SM2Result(phase=Phase.EXPONENTIAL, step=None, interval=interval)
+     */
+    
     private func handleRelearnPhase(_ card: LearningCard, _ choice: LearningChoice) -> SuperMemo2Result {
         
-        return SuperMemo2Result(.RELEARN)
+        // Handle if user setting handle interval as empty or step is over after relearnInterval configurations.
+        if cfg.relearnIntervals.count == 0 || card.step >= cfg.relearnIntervals.count {
+            let nextInterval = Int(Double(card.interval) * card.ease)
+            
+            return SuperMemo2Result(.EXPONENTIAL, step: nil, ease: card.ease, interval: nextInterval)
+        }
+        
+        switch choice {
+        case .AGAIN:
+            return SuperMemo2Result(.RELEARN, step: 0, interval: cfg.relearnIntervals[0], leech: card.leech + 1)
+        case .HARD:
+            if card.step == 0 && cfg.relearnIntervals.count == 1 {
+                let nextInterval = Int(Double(cfg.relearnIntervals[0]) * 1.5)
+                return SuperMemo2Result(.RELEARN, step: 0, interval: nextInterval)
+            } else if card.step == 0 && cfg.relearnIntervals.count > 1{
+                let nextInterval = (cfg.relearnIntervals[card.step] + cfg.relearnIntervals[card.step + 1]) / 2
+                return SuperMemo2Result(.RELEARN, step: 0, interval: nextInterval)
+            }
+        case .GOOD:
+            if card.step + 1 == cfg.relearnIntervals.count {
+                let nextInterval = Int(Double(card.interval) * card.ease)
+                return SuperMemo2Result(.EXPONENTIAL, step: nil, interval: nextInterval)
+            }
+            
+            return SuperMemo2Result(.RELEARN, step: card.step + 1, interval:  cfg.relearnIntervals[card.step + 1])
+        case .EASY:
+            break
+        }
+        
+        let nextInterval = min(
+            Int(Double(card.interval) * card.ease * cfg.easyBonus),
+            SuperMemo2.daysToMinutes(cfg.maxDays)
+        )
+        
+        return SuperMemo2Result(.EXPONENTIAL, step: nil, ease: card.ease, interval: nextInterval)
     }
     
     
