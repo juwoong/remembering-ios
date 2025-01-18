@@ -102,7 +102,7 @@ class SQLiteDatabase {
         
         var results: [T] = []
         while(sqlite3_step(statement) == SQLITE_ROW) {
-            let result = createDTOInstance(to: to, pointer: statement)
+            let result = createDTOInstance(to: to, stmt: statement)
             results.append(result)
         }
         
