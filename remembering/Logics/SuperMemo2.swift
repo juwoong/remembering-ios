@@ -113,6 +113,7 @@ class SuperMemo2 {
     }
     
     private func handleExponentialPhase(_ card: LearningCard, _ choice: LearningChoice) -> SuperMemo2Result {
+        let dayAdjustment = self.getOverdueParameter(card, choice)
 
         switch choice {
         case .AGAIN:
@@ -128,35 +129,34 @@ class SuperMemo2 {
             )
             // TODO: appliy fuzzed intervals
             
+            
             return SuperMemo2Result(.EXPONENTIAL, ease: nextEase, interval: nextInterval, leech: card.leech + 1)
         case .HARD:
             let nextEase = max(1.3, card.ease * 0.85)
-            // TODO: apply day adjustments
-            
             let nextInterval = min(
-                Int(Double(card.interval) * cfg.hardIntervalMultiplier * cfg.intervalModifier),
+                Int((Double(card.interval) + dayAdjustment) * cfg.hardIntervalMultiplier * cfg.intervalModifier),
                 SuperMemo2.daysToMinutes(cfg.maxDays)
             )
+            let fuzzedInterval = self.getFuzzInterval(Double(nextInterval))
             
-            return SuperMemo2Result(.EXPONENTIAL, ease: nextEase, interval: nextInterval)
+            return SuperMemo2Result(.EXPONENTIAL, ease: nextEase, interval: fuzzedInterval)
         case .GOOD:
-            // TODO: apply day adjustment
             let nextInterval = min(
-                Int(Double(card.interval) * card.ease * cfg.intervalModifier),
+                Int((Double(card.interval) + dayAdjustment) * card.ease * cfg.intervalModifier),
                 SuperMemo2.daysToMinutes(cfg.maxDays)
             )
-            // TODO: apply fuzzed interval function
-            
-            return SuperMemo2Result(.EXPONENTIAL, ease: card.ease, interval: nextInterval)
+            let fuzzedInterval = self.getFuzzInterval(Double(nextInterval))
+
+            return SuperMemo2Result(.EXPONENTIAL, ease: card.ease, interval: fuzzedInterval)
         case .EASY:
             let nextEase = card.ease * 1.15
-            // TODO: apply day adjustment
             let nextInterval = min(
-                Int(Double(card.interval) * card.ease * cfg.intervalModifier * cfg.easyBonus),
+                Int((Double(card.interval) + dayAdjustment) * card.ease * cfg.intervalModifier * cfg.easyBonus),
                 SuperMemo2.daysToMinutes(cfg.maxDays)
             )
+            let fuzzedInterval = self.getFuzzInterval(Double(nextInterval))
             
-            return SuperMemo2Result(.EXPONENTIAL, ease: nextEase, interval: nextInterval)
+            return SuperMemo2Result(.EXPONENTIAL, ease: nextEase, interval: fuzzedInterval)
         }
     }
     
@@ -222,5 +222,64 @@ class SuperMemo2 {
         
         return results
     }
+
+}
+
+// fuzz functions
+private extension SuperMemo2 {
+    func getFuzzRange(_ interval: Double) -> (Int, Int) {
+        var delta: Double = 1.0
+        for i in 0...Global.FUZZ_RANGE.count {
+            let range = Global.FUZZ_RANGE[i]
+            
+            delta += range.factor * max(min(interval, range.end) - range.start, 0.0)
+        }
+        
+        let fuzzMin = Int(round(interval - delta))
+        let fuzzMax = Int(round(interval + delta))
+        
+        let maxInterval = min(fuzzMax, SuperMemo2.daysToMinutes(self.cfg.maxDays))
+        let minInterval = min(max(2, fuzzMin), maxInterval)
+        
+        return (minInterval, maxInterval)
+    }
     
+    func getFuzzInterval(_ interval: Double) -> Int {
+        let intervalAsDay = interval / Double(Global.DAY_IN_MINUTES)
+        
+        let (minInterval, maxInterval) = self.getFuzzRange(intervalAsDay)
+        let fuzzIntervalAsDay: Double = Double.random(in: Double(minInterval)...Double(maxInterval))
+        
+        let fuzzedInterval = min(
+            Int(round(fuzzIntervalAsDay * Double(Global.DAY_IN_MINUTES))),
+            SuperMemo2.daysToMinutes(self.cfg.maxDays)
+        )
+        
+        return fuzzedInterval
+    }
+}
+
+// overdue
+private extension SuperMemo2 {
+    func getOverdueParameter(_ card: LearningCard, _ choice: LearningChoice) -> Double {
+        if card.lastReview == nil {
+            return 0.0
+        }
+        
+        let diffDay = Double(daysBetweenDates(startDate: card.lastReview!, endDate: Date()))
+        if diffDay < 1 {
+            return 0
+        }
+            
+        switch choice {
+        case .AGAIN:
+            return 0.0
+        case .HARD:
+            return diffDay / 4
+        case .GOOD:
+            return diffDay / 2
+        case .EASY:
+            return diffDay
+        }
+    }
 }
