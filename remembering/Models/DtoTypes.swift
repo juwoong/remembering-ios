@@ -11,6 +11,11 @@ protocol SQLModel {
     func toString() -> String
 }
 
+protocol WriteableSQLModel: SQLModel {
+    func insertQuery() -> String
+    func updateQuery() -> String
+}
+
 func createDTOInstance<T: SQLModel>(to: T.Type, stmt: OpaquePointer?) -> T {
     return to.parse(stmt: stmt)
 }

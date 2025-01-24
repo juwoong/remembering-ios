@@ -49,3 +49,31 @@ struct LearningCard: SQLModel {
     }
     
 }
+
+extension LearningCard: WriteableSQLModel {
+    func insertQuery() -> String {
+        let formattedLastReview = self.lastReview == nil ? "NULL" : dateToSQLString(self.lastReview!)
+        let formattedNextReview = self.nextReview == nil ? "NULL" : dateToSQLString(self.nextReview!)
+        
+        return "INSERT INTO cards(data_id, phase, interval, ease, step, leech, last_review, next_review) VALUES(\(self.dataId), \(self.phase.rawValue), \(self.interval), \(self.ease), \(self.leech), '\(formattedLastReview), '\(formattedNextReview)')"
+    }
+    
+    func updateQuery() -> String {
+        let formattedLastReview = self.lastReview == nil ? "NULL" : "'\(dateToSQLString(self.lastReview!))'"
+        let formattedNextReview = self.nextReview == nil ? "NULL" : "'\(dateToSQLString(self.nextReview!))'"
+        
+        return """
+        UPDATE cards
+        SET
+            data_id = \(self.dataId),
+            phase = \(self.phase.rawValue),
+            interval = \(self.interval),
+            ease = \(self.ease),
+            step = \(self.step),
+            leech = \(self.leech),
+            last_review = \(formattedLastReview),
+            next_review = \(formattedNextReview)
+        WHERE id = \(self.id);
+        """
+    }
+}
