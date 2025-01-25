@@ -42,3 +42,38 @@ struct LearningSchedule: SQLModel {
         return "LearningSchedule(id: \(id), date: \(date), status: \(status), created: \(created), learning: \(learning), exponentials: \(exponentials), done: \(done))"
     }
 }
+
+extension LearningSchedule: WriteableSQLModel {
+    func insertQuery() -> String {
+        let formattedDate = "'\(dateToSQLString(self.date))'"
+        let formattedCreated = try! jsonEncode(self.created)
+        let formattedLearning = try! jsonEncode(self.learning)
+        let formattedReviewed = try! jsonEncode(self.exponentials)
+        let formattedDone = try! jsonEncode(self.done)
+        
+        return """
+        INSERT INTO schedules(date, status, created, learning, reviewed, done)
+        VALUES(\(formattedDate), \(self.status.rawValue), '\(formattedCreated)', '\(formattedLearning)', '\(formattedReviewed)', '\(formattedDone)')
+        """
+    }
+    
+    func updateQuery() -> String {
+        let formattedDate = "'\(dateToSQLString(self.date))'"
+        let formattedCreated = try! jsonEncode(self.created)
+        let formattedLearning = try! jsonEncode(self.learning)
+        let formattedReviewed = try! jsonEncode(self.exponentials)
+        let formattedDone = try! jsonEncode(self.done)
+        
+        return """
+        UPDATE schedules
+        SET
+            date = \(formattedDate),
+            status = \(self.status.rawValue),
+            created = '\(formattedCreated)',
+            learning = '\(formattedLearning)',
+            reviewed = '\(formattedReviewed)',
+            done = '\(formattedDone)'
+        WHERE id = \(self.id)
+        """
+    }
+}

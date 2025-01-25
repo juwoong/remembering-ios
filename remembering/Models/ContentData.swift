@@ -7,6 +7,13 @@
 import SQLite3
 import Foundation
 
+
+enum ContentDataError: Error {
+    case failedToCreateContentDataError(String)
+    case failedToUpdateContentDataError(String)
+}
+
+
 struct DescriptionJSON: Codable {
     let pronunciation: String
     let meaning: String
@@ -35,5 +42,32 @@ struct ContentDataModel: SQLModel {
     
     func toString() -> String {
         return "ContentDataDto(\(id), \(question), \(description.toString()), \(priority), \(isGenerated))"
+    }
+}
+
+extension ContentDataModel: WriteableSQLModel {
+    func insertQuery() -> String {
+        let formattedDescription = try! jsonEncode(self.description)
+        let isGeneratedValue = self.isGenerated ? 1 : 0
+        
+        return """
+        INSERT INTO datas (question, description, priority, is_generated)
+        VALUES ('\(self.question)', '\(formattedDescription)', \(self.priority), \(isGeneratedValue))
+        """
+    }
+    
+    func updateQuery() -> String {
+        let formattedDescription = try! jsonEncode(self.description)
+        let isGeneratedValue = self.isGenerated ? 1 : 0
+        
+        return """
+        UPDATE datas
+        SET
+            question = '\(self.question)',
+            description = '\(formattedDescription)',
+            priority = \(self.priority),
+            is_generated = \(isGeneratedValue)
+        WHERE id = \(self.id)
+        """
     }
 }

@@ -8,8 +8,14 @@ import Foundation
 import SQLite3
 
 
+enum LearningCardError: Error {
+    case failedToCreateLearningCard(String)
+    case failedToUpdateLearningCard(String)
+}
+
+
 struct LearningCard: SQLModel {
-    var id: Int
+    var id: Int = 0
     var dataId: Int
     var phase: LearningPhase
     var interval: Int

@@ -82,15 +82,21 @@ class SQLiteDatabase {
         }
     }
     
-    static func read<T: SQLModel>(sql: String, to: T.Type) -> [T] {
+    static func prepareDatabase() -> OpaquePointer? {
         var database: OpaquePointer?
-        let query = "SELECT * FROM datas LIMIT 10;"
-        
         let dbPath = getDatabasePath()
+        
         if sqlite3_open(dbPath, &database) != SQLITE_OK {
             print("error to open database")
-            return []
+            return nil
         }
+        
+        return database
+    }
+    
+    static func read<T: SQLModel>(sql: String, to: T.Type) -> [T] {
+        var database = SQLiteDatabase.prepareDatabase()
+        let query = "SELECT * FROM datas LIMIT 10;"
         
         var statement: OpaquePointer?
         if sqlite3_prepare(database, query, -1, &statement, nil) != SQLITE_OK {
@@ -107,5 +113,46 @@ class SQLiteDatabase {
         }
         
         return results
+    }
+    
+    static func create<T: WriteableSQLModel>(_ model: T) -> Int? {
+        var database = SQLiteDatabase.prepareDatabase()
+        let dbPath = getDatabasePath()
+        
+        if sqlite3_open(dbPath, &database) != SQLITE_OK {
+            print("error to open database")
+            return nil
+        }
+        
+        var statement: OpaquePointer?
+        if sqlite3_prepare_v2(database, model.insertQuery(), -1, &statement, nil) != SQLITE_OK {
+            let errmsg = String(cString: sqlite3_errmsg(database))
+            print("Error to prepare statement: \(errmsg)")
+            
+            return nil
+        }
+        
+        let lastRowId = Int(sqlite3_last_insert_rowid(database))
+        return lastRowId
+    }
+    
+    static func update<T: WriteableSQLModel>(_ model: T) -> Bool{
+        var database = SQLiteDatabase.prepareDatabase()
+        let dbPath = getDatabasePath()
+        
+        if sqlite3_open(dbPath, &database) != SQLITE_OK {
+            print("error to open database")
+            return false
+        }
+        
+        var statement: OpaquePointer?
+        if sqlite3_prepare_v2(database, model.insertQuery(), -1, &statement, nil) != SQLITE_OK {
+            let errmsg = String(cString: sqlite3_errmsg(database))
+            print("Error to prepare statement: \(errmsg)")
+            
+            return false
+        }
+        
+        return true
     }
 }

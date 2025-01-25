@@ -7,6 +7,11 @@
 
 class SuperMemoScheduler {
     static let availablePriorities = [0, 1, 2]
+    let cfg: SuperMemo2Config
+    
+    init(cfg: SuperMemo2Config) {
+        self.cfg = cfg
+    }
     
     
     private func loadUnusedData(_ limit: Int) -> [ContentDataModel] {
@@ -20,5 +25,27 @@ class SuperMemoScheduler {
         }
         
         return results
+    }
+    
+    private func createNewCard(_ data: ContentDataModel) throws -> LearningCard  {
+        var card = LearningCard(
+            dataId: data.id,
+            phase: LearningPhase.NEW,
+            interval: 0,
+            ease: self.cfg.defaultEase
+        )
+        
+        let id: Int? = SQLiteDatabase.create(card)
+        if id == nil {
+            throw LearningCardError.failedToCreateLearningCard(card.toString())
+        }
+        card.id = id!
+        
+        let newData = ContentDataModel(id: data.id, question: data.question, description: data.description, priority: data.priority, isGenerated: true)
+        if !SQLiteDatabase.update(newData) {
+            throw ContentDataError.failedToUpdateContentDataError(newData.toString())
+        }
+        
+        return card
     }
 }
