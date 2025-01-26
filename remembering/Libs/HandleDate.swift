@@ -13,6 +13,10 @@ func daysBetweenDates(startDate: Date, endDate: Date) -> Int {
     return components.day ?? 0
 }
 
+func addMinutes(_ date: Date, _ minutes: Int) -> Date {
+    return Calendar.current.date(byAdding: .minute, value: minutes, to: date)!
+}
+
 func startOfDay(_ date: Date) -> Date {
     return Calendar.current.startOfDay(for: date)
 }
