@@ -13,9 +13,14 @@ func daysBetweenDates(startDate: Date, endDate: Date) -> Int {
     return components.day ?? 0
 }
 
+func startOfDay(_ date: Date) -> Date {
+    return Calendar.current.startOfDay(for: date)
+}
+
 func dateToSQLString(_ date: Date) -> String {
     let formatter = DateFormatter()
     formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
     
     return formatter.string(from: date)
 }
+

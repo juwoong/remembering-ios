@@ -28,7 +28,7 @@ struct ContentDataModel: SQLModel {
     let question: String
     let description: DescriptionJSON
     let priority: Int
-    let isGenerated: Bool
+    var isGenerated: Bool
     
     static func parse(stmt: OpaquePointer?) -> Self {
         let id = Int(sqlite3_column_int(stmt, 0))
@@ -42,6 +42,12 @@ struct ContentDataModel: SQLModel {
     
     func toString() -> String {
         return "ContentDataDto(\(id), \(question), \(description.toString()), \(priority), \(isGenerated))"
+    }
+    
+    func update(update: (inout Self) -> Void) -> Self {
+        var copy = self
+        update(&copy)
+        return copy
     }
 }
 

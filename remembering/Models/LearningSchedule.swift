@@ -8,6 +8,12 @@ import Foundation
 import SQLite3
 
 
+enum LearningScheduleError: Error {
+    case failedToCreateLearningSchedule(String)
+    case failedToUpdateLearningSchedule(String)
+}
+
+
 struct LearningSchedule: SQLModel {
     var id: Int = 0
     var date: Date
@@ -16,6 +22,11 @@ struct LearningSchedule: SQLModel {
     var learning: [Int]
     var exponentials: [Int]
     var done: [Int]
+    
+    var createdCard: [LearningCard] = []
+    var learingCard: [LearningCard] = []
+    var exponentialCard: [LearningCard] = []
+    var doneCard: [LearningCard] = []
     
     static func parse(stmt: OpaquePointer?) -> Self {
         let id = Int(sqlite3_column_int(stmt, 0))
@@ -40,6 +51,12 @@ struct LearningSchedule: SQLModel {
     
     func toString() -> String {
         return "LearningSchedule(id: \(id), date: \(date), status: \(status), created: \(created), learning: \(learning), exponentials: \(exponentials), done: \(done))"
+    }
+    
+    func update(update: (inout Self) -> Void) -> Self {
+        var copy = self
+        update(&copy)
+        return copy
     }
 }
 

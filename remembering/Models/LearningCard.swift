@@ -11,6 +11,7 @@ import SQLite3
 enum LearningCardError: Error {
     case failedToCreateLearningCard(String)
     case failedToUpdateLearningCard(String)
+    case learningCardNotFound(String)
 }
 
 
@@ -54,6 +55,11 @@ struct LearningCard: SQLModel {
         return "LearningCard(id: \(id), dataId: \(dataId), interval: \(interval), ease: \(ease), phase: \(phase))"
     }
     
+    func update(update: (inout Self) -> Void) -> Self {
+        var copy = self
+        update(&copy)
+        return copy
+    }
 }
 
 extension LearningCard: WriteableSQLModel {
