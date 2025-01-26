@@ -25,13 +25,13 @@ class ScheduleContext {
     }
     
     func next() -> LearningCard? {
-        if self.schedule.created.count > 0 {
+        if !self.schedule.created.isEmpty {
             self.lastFrom = ListType.CREATED
             return self.schedule.createdCard.first
-        } else if self.schedule.exponentials.count > 0 {
+        } else if !self.schedule.exponentials.isEmpty {
             self.lastFrom = ListType.EXPONENTIAL
             return self.schedule.exponentialCard.first
-        } else if self.schedule.learning.count > 0 {
+        } else if !self.schedule.learning.isEmpty {
             self.lastFrom = ListType.LEARNING
             return self.schedule.learingCard.first
         }

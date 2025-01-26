@@ -10,7 +10,7 @@ struct StudyFinishView: View {
     
     var body: some View {
         VStack {
-            Text("오늘치 학습이 완료되었습니다.").fontWeight(.bold).font(.system(size: 24))
+            Text("오늘의 학습이 완료되었습니다.").fontWeight(.bold).font(.system(size: 24))
         }
     }
 }

@@ -61,7 +61,7 @@ class SuperMemoScheduler {
             let query = "SELECT * FROM datas WHERE id = \(cardResult.dataId)"
             let dataResult = SQLiteDatabase.read(sql: query, to: ContentDataModel.self)
             
-            if dataResult.count > 0 {
+            if !dataResult.isEmpty {
                 result.append(
                     cardResult.update {
                         $0.data = dataResult[0]
@@ -89,7 +89,7 @@ class SuperMemoScheduler {
         let query = "SELECT * FROM cards WHERE id = \(id)"
         
         let result = SQLiteDatabase.read(sql: query, to: LearningCard.self)
-        if result.count == 0 {
+        if result.isEmpty {
             throw LearningCardError.failedToCreateLearningCard("No card found with id \(id)")
         }
         

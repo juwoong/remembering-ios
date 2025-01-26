@@ -105,11 +105,11 @@ class SuperMemo2{
         case .AGAIN:
             let nextEase = max(1.3, card.ease * 0.8)
             
-            if cfg.relearnIntervals.count > 0 {
+            if !cfg.relearnIntervals.isEmpty {
                 return SuperMemo2Result(.RELEARN, step: 0, ease: nextEase, interval: cfg.relearnIntervals[0])
             }
             
-            var nextInterval = max(
+            let nextInterval = max(
                 Int(Double(card.interval) * Global.LAPSE_INTERVAL_MULTIPLIER),
                 SuperMemo2.daysToMinutes(cfg.minDays)
             )
@@ -149,7 +149,7 @@ class SuperMemo2{
     private func handleRelearnPhase(_ card: LearningCard, _ choice: LearningChoice) -> SuperMemo2Result {
         
         // Handle if user setting handle interval as empty or step is over after relearnInterval configurations.
-        if cfg.relearnIntervals.count == 0 || card.step >= cfg.relearnIntervals.count {
+        if cfg.relearnIntervals.isEmpty || card.step >= cfg.relearnIntervals.count {
             let nextInterval = Int(Double(card.interval) * card.ease)
             
             return SuperMemo2Result(.EXPONENTIAL, step: nil, ease: card.ease, interval: nextInterval)
