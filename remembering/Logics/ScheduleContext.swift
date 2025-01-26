@@ -13,6 +13,11 @@ enum ListType: Int {
     case DONE = 4
 }
 
+struct ScheduleRemainCardResult {
+    let longTermCount: Int
+    let shortTermCount: Int
+    let newWordCount: Int
+}
 
 class ScheduleContext {
     private var schedule: LearningSchedule
@@ -71,11 +76,11 @@ class ScheduleContext {
         }
     }
     
-    func getCardChoices(_ card: LearningCard) -> [String] {
+    func getCardChoices(_ card: LearningCard) -> SuperMemoChoiceResult {
         return self.logic.getExpectIntervals(card)
     }
     
-    func apply(_ card: LearningCard, _ choice: LearningChoice) {
+    func apply(_ card: LearningCard, _ choice: LearningChoice) -> LearningCard? {
         let result = self.logic.getCardNext(card, choice)
         
         var nextCard = card.update {
@@ -104,5 +109,15 @@ class ScheduleContext {
         
         let _ = SQLiteDatabase.update(nextCard)
         let _ = SQLiteDatabase.update(self.schedule)
+        
+        return self.next()
+    }
+    
+    func getRemainCardStatus() -> ScheduleRemainCardResult {
+        return ScheduleRemainCardResult(
+            longTermCount: self.schedule.created.count,
+            shortTermCount: self.schedule.learning.count,
+            newWordCount: self.schedule.exponentials.count
+        )
     }
 }

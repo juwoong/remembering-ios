@@ -13,10 +13,20 @@ struct WordQuizView: View {
     @State var isBookmarked: Bool = false
     @State var index = 0
     @State var studyFinished: Bool = false
-    var contents: [ContentDataModel] // TODO: change this to card lol
+    @State var currentCard: LearningCard
+    
+    let cfg: SuperMemo2Config
+    let scheduler: SuperMemoScheduler
+    let ctx: ScheduleContext
     
     init() {
-        self.contents = SQLiteDatabase.read(sql: "SELECT * FROM datas LIMIT 20;", to: ContentDataModel.self)
+        self.cfg = getDefaultSuperMemo2Config()
+        self.scheduler = SuperMemoScheduler(cfg: self.cfg)
+        
+        // Handle and show different
+        let schedule = try! self.scheduler.getSchedule(Date())
+        self.ctx = ScheduleContext(schedule: schedule, supermemo: SuperMemo2(cfg: self.cfg))
+        self.currentCard = self.ctx.next()!
     }
     
     var body: some View {
@@ -26,7 +36,7 @@ struct WordQuizView: View {
                     GeometryReader { geometry in
                         VStack {
                             VStack {
-                                Text(contents[index].question)
+                                Text(currentCard.data?.question ?? "ERROR")
                                     .padding(10)
                                     .fontWeight(.bold)
                                     .font(.largeTitle)
@@ -51,12 +61,12 @@ struct WordQuizView: View {
                                             .padding(.top, 16)
                                     }
                                     VStack {
-                                        Text(contents[index].description.meaning)
+                                        Text(currentCard.data?.description.meaning ?? "ERROR")
                                             .font(.largeTitle)
                                             .padding(.bottom, 8)
                                         HStack {
                                             Image(systemName: "speaker.wave.2.fill")
-                                            Text(contents[index].description.pronunciation)
+                                            Text(currentCard.data?.description.meaning ?? "ERROR")
                                         }
                                     }
                                 }
@@ -78,28 +88,32 @@ struct WordQuizView: View {
                     .padding(.bottom, 92)
                     .padding(.top, 20)
                     .onTapGesture {
-                        self.displayAnswerCard.toggle()
-                        
-                        // toggle한 이후기 때문에 false
-                        if self.displayAnswerCard == false && self.index < self.contents.count - 1{
-                            
-                            self.index += 1
-                        } else if self.index == self.contents.count - 1 {
-                            self.studyFinished.toggle()
+                        if self.displayAnswerCard == false {
+                            self.displayAnswerCard.toggle()
                         }
                     }
                     
                     VStack {
                         Spacer()
                         if self.displayAnswerCard {
+                            let choices = self.ctx.getCardChoices(self.currentCard)
+                            
                             WordCardAction(
-                                retryMinute: "<1분", difficultyMinute: "<6분", correctMinute: "<10분", easyMinute: "3일"
+                                retryMinute: choices.retry, difficultyMinute: choices.difficult, correctMinute: choices.difficult, easyMinute: choices.easy,
+                                onButtonSelected: { action in
+                                    if let nextCard = self.ctx.apply(self.currentCard, action) {
+                                        self.currentCard = nextCard
+                                    } else {
+                                        self.studyFinished.toggle()
+                                    }
+                                }
                             )
                         } else {
+                            let status = self.ctx.getRemainCardStatus()
                             WordQuizStatus(
-                                longTermCount: self.termCount,
-                                shortTermCount: self.termCount,
-                                newWordCount: self.termCount
+                                longTermCount: status.longTermCount,
+                                shortTermCount: status.shortTermCount,
+                                newWordCount: status.newWordCount
                             )
                         }
                     }

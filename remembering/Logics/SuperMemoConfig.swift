@@ -17,3 +17,14 @@ struct SuperMemo2Config {
     let easyBonus: Double
     let intervalModifier: Double
 }
+
+
+func getDefaultSuperMemo2Config() -> SuperMemo2Config {
+    return SuperMemo2Config(
+        defaultEase: 2.3,
+        graduatingInterval: 1440,  // 1day
+        easyInterval: 365,
+        easyBonus: 1.3,
+        intervalModifier: 1.0
+    )
+}

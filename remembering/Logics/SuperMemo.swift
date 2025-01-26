@@ -22,6 +22,13 @@ struct SuperMemo2Result {
     }
 }
 
+struct SuperMemoChoiceResult {
+    let retry: String
+    let difficult: String
+    let correct: String
+    let easy: String
+}
+
 
 class SuperMemo2{
     let cfg: SuperMemo2Config
@@ -197,7 +204,7 @@ class SuperMemo2{
         }
     }
     
-    func getExpectIntervals(_ card: LearningCard) -> [String] {
+    func getExpectIntervals(_ card: LearningCard) -> SuperMemoChoiceResult {
         // TODO: Can I merge two lines at once? using much more simple Syntax Sugar?
         let availableChoices: [LearningChoice] = [.AGAIN, .HARD, .GOOD, .EASY]
         var results: [String] = []
@@ -206,7 +213,7 @@ class SuperMemo2{
             results.append(SuperMemo2.humanizeMinutes(result.interval!))
         }
         
-        return results
+        return SuperMemoChoiceResult(retry: results[0], difficult: results[1], correct: results[2], easy: results[3])
     }
 
 }

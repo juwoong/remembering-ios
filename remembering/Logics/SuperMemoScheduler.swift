@@ -131,7 +131,7 @@ class SuperMemoScheduler {
         }
     }
     
-    private func getSchedule(_ now: Date) throws -> LearningSchedule {
+    func getSchedule(_ now: Date) throws -> LearningSchedule {
         let schedules = SQLiteDatabase
             .read(sql: "SELECT * FROM schedules WHERE status IN (\(ScheduleState.NOT_STARTED.rawValue), \(ScheduleState.IN_PROGRESS))", to: LearningSchedule.self)
         

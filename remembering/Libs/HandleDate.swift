@@ -27,4 +27,3 @@ func dateToSQLString(_ date: Date) -> String {
     
     return formatter.string(from: date)
 }
-
