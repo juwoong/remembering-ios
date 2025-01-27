@@ -8,7 +8,7 @@ import Foundation
 
 
 class SuperMemoScheduler {
-    static let availablePriorities = [0, 1, 2]
+    static let availablePriorities = [0, 1, 2, 3, 4]
     let cfg: SuperMemo2Config
     
     init(cfg: SuperMemo2Config) {
@@ -34,7 +34,8 @@ class SuperMemoScheduler {
             dataId: data.id,
             phase: LearningPhase.NEW,
             interval: 0,
-            ease: self.cfg.defaultEase
+            ease: self.cfg.defaultEase,
+            data: data
         )
         
         let id: Int? = SQLiteDatabase.create(card)
@@ -104,7 +105,7 @@ class SuperMemoScheduler {
         let dataQueryId = result.map { String($0.dataId) }.joined(separator: ", ")
         let dataList = SQLiteDatabase.read(sql: "SELECT * FROM datas WHERE id IN (\(dataQueryId))", to: ContentDataModel.self)
         let dataDict = Dictionary(uniqueKeysWithValues: dataList.map { ($0.id, $0)})
-        
+                
         var results: [LearningCard] = []
         for card in result {
             if let data = dataDict[card.dataId] {
@@ -133,12 +134,14 @@ class SuperMemoScheduler {
     
     func getSchedule(_ now: Date) throws -> LearningSchedule {
         let schedules = SQLiteDatabase
-            .read(sql: "SELECT * FROM schedules WHERE status IN (\(ScheduleState.NOT_STARTED.rawValue), \(ScheduleState.IN_PROGRESS))", to: LearningSchedule.self)
+            .read(sql: "SELECT * FROM schedules WHERE status IN (\(ScheduleState.NOT_STARTED.rawValue), \(ScheduleState.IN_PROGRESS.rawValue))", to: LearningSchedule.self)
         
         if !schedules.isEmpty {
+            print("schedule exists")
             return fillScheduleInstance(schedules[0])
         }
         
+        print("schedule not exists.. creating new one")
         let schedule = try! self.createNewSchedule(now)
         // FIXME: handle data finished Here
         let newData = self.loadUnusedData(10)
@@ -153,7 +156,6 @@ class SuperMemoScheduler {
                 })
             }
         }
-        
         
         let exponentials = self.loadExponentialCards(now)
         let resultSchedule = schedule.update {

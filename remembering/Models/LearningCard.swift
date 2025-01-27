@@ -64,10 +64,10 @@ struct LearningCard: SQLModel {
 
 extension LearningCard: WriteableSQLModel {
     func insertQuery() -> String {
-        let formattedLastReview = self.lastReview == nil ? "NULL" : dateToSQLString(self.lastReview!)
-        let formattedNextReview = self.nextReview == nil ? "NULL" : dateToSQLString(self.nextReview!)
+        let formattedLastReview = self.lastReview == nil ? "NULL" : "'\(dateToSQLString(self.lastReview!))'"
+        let formattedNextReview = self.nextReview == nil ? "NULL" : "'\(dateToSQLString(self.nextReview!))'"
         
-        return "INSERT INTO cards(data_id, phase, interval, ease, step, leech, last_review, next_review) VALUES(\(self.dataId), \(self.phase.rawValue), \(self.interval), \(self.ease), \(self.leech), '\(formattedLastReview), '\(formattedNextReview)')"
+        return "INSERT INTO cards(data_id, phase, interval, ease, step, leech, last_review, next_review) VALUES(\(self.dataId), \(self.phase.rawValue), \(self.interval), \(self.ease), \(self.step), \(self.leech), \(formattedLastReview), \(formattedNextReview))"
     }
     
     func updateQuery() -> String {

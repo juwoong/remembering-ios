@@ -33,7 +33,7 @@ struct ContentDataModel: SQLModel {
     static func parse(stmt: OpaquePointer?) -> Self {
         let id = Int(sqlite3_column_int(stmt, 0))
         let question = String(cString: sqlite3_column_text(stmt, 1))
-        let description = parseJSONLikeColumn(stmt: stmt , index: 2, to: DescriptionJSON.self)!
+        let description = parseJSONLikeColumn(stmt: stmt, index: 2, to: DescriptionJSON.self)!
         let priority = Int(sqlite3_column_int(stmt, 3))
         let isGenerated = Int(sqlite3_column_int(stmt, 4)) == 1
         

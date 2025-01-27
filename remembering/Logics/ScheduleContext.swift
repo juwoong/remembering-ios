@@ -115,9 +115,9 @@ class ScheduleContext {
     
     func getRemainCardStatus() -> ScheduleRemainCardResult {
         return ScheduleRemainCardResult(
-            longTermCount: self.schedule.created.count,
+            longTermCount: self.schedule.exponentials.count,
             shortTermCount: self.schedule.learning.count,
-            newWordCount: self.schedule.exponentials.count
+            newWordCount: self.schedule.created.count
         )
     }
 }

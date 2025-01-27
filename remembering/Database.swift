@@ -73,13 +73,25 @@ class SQLiteDatabase {
         let originPath = Bundle.main.path(forResource: "content", ofType: "db")
         let destPath = getDatabasePath()
         
-        if !FileManager.default.fileExists(atPath: destPath) {
-            do {
-                try FileManager.default.copyItem(atPath: originPath!, toPath: destPath)
-            } catch let error as NSError {
-                print("error occurs during database initialization: \(error)")
-            }
+        print("getDatabasePath", destPath)
+        if FileManager.default.fileExists(atPath: destPath) {
+            try! FileManager.default.removeItem(atPath: destPath)
         }
+        
+        do {
+            try FileManager.default.copyItem(atPath: originPath!, toPath: destPath)
+        } catch let error as NSError {
+            print("error occurs during database initialization: \(error)")
+        }
+        
+        
+//        if !FileManager.default.fileExists(atPath: destPath) {
+//            do {
+//                try FileManager.default.copyItem(atPath: originPath!, toPath: destPath)
+//            } catch let error as NSError {
+//                print("error occurs during database initialization: \(error)")
+//            }
+//        }
     }
     
     static func prepareDatabase() -> OpaquePointer? {
@@ -96,10 +108,9 @@ class SQLiteDatabase {
     
     static func read<T: SQLModel>(sql: String, to: T.Type) -> [T] {
         var database = SQLiteDatabase.prepareDatabase()
-        let query = "SELECT * FROM datas LIMIT 10;"
         
         var statement: OpaquePointer?
-        if sqlite3_prepare(database, query, -1, &statement, nil) != SQLITE_OK {
+        if sqlite3_prepare(database, sql, -1, &statement, nil) != SQLITE_OK {
             let errmsg = String(cString: sqlite3_errmsg(database))
             print("Error to prepare statement: \(errmsg)")
             
@@ -132,6 +143,12 @@ class SQLiteDatabase {
             return nil
         }
         
+        if sqlite3_step(statement) != SQLITE_DONE {
+            let errmsg = String(cString: sqlite3_errmsg(database))
+            print("Error to commit statement: \(errmsg)")
+            return nil
+        }
+        
         let lastRowId = Int(sqlite3_last_insert_rowid(database))
         return lastRowId
     }
@@ -149,6 +166,13 @@ class SQLiteDatabase {
         if sqlite3_prepare_v2(database, model.insertQuery(), -1, &statement, nil) != SQLITE_OK {
             let errmsg = String(cString: sqlite3_errmsg(database))
             print("Error to prepare statement: \(errmsg)")
+            
+            return false
+        }
+        
+        if sqlite3_step(statement) != SQLITE_DONE {
+            let errmsg = String(cString: sqlite3_errmsg(database))
+            print("Error to update row: \(errmsg)")
             
             return false
         }

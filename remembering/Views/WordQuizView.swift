@@ -25,8 +25,12 @@ struct WordQuizView: View {
         
         // Handle and show different
         let schedule = try! self.scheduler.getSchedule(Date())
+
         self.ctx = ScheduleContext(schedule: schedule, supermemo: SuperMemo2(cfg: self.cfg))
         self.currentCard = self.ctx.next()!
+        
+        let choices = self.ctx.getCardChoices(self.currentCard)
+        print("choices", choices, "card", self.currentCard)
     }
     
     var body: some View {
@@ -103,6 +107,7 @@ struct WordQuizView: View {
                                 onButtonSelected: { action in
                                     if let nextCard = self.ctx.apply(self.currentCard, action) {
                                         self.currentCard = nextCard
+                                        self.displayAnswerCard.toggle()
                                     } else {
                                         self.studyFinished.toggle()
                                     }

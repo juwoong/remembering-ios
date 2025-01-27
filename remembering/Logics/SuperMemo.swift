@@ -49,16 +49,16 @@ class SuperMemo2{
         if minutes > 60 && minutes < 60 * 24 {
             unit = 60
             unitName = "h"
-        } else if minutes < 60 * 24 * 7 {
+        } else if minutes < 60 * 24 * 7 && minutes >= 60 * 24 {
             unit = 60 * 24
             unitName = "d"
-        } else if minutes < 60 * 24 * 30 {
+        } else if minutes < 60 * 24 * 30 && minutes >= 60 * 24 * 7 {
             unit = 60 * 24 * 7
             unitName = "w"
-        } else if minutes < 60 * 24 * 365 {
+        } else if minutes < 60 * 24 * 365 && minutes >= 60 * 24 * 30 {
             unit = 60 * 24 * 30
             unitName = "mo"
-        } else {
+        } else if minutes >= 60 * 24 * 365 {
             unit = 60 * 24 * 365
             unitName = "y"
         }
