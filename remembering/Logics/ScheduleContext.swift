@@ -29,19 +29,19 @@ class ScheduleContext {
         self.logic = supermemo
     }
     
-    func next() -> LearningCard? {
+    func next() -> LearningCard {
         if !self.schedule.created.isEmpty {
             self.lastFrom = ListType.CREATED
-            return self.schedule.createdCard.first
+            return self.schedule.createdCard.first ?? LearningCard.empty()
         } else if !self.schedule.exponentials.isEmpty {
             self.lastFrom = ListType.EXPONENTIAL
-            return self.schedule.exponentialCard.first
+            return self.schedule.exponentialCard.first ?? LearningCard.empty()
         } else if !self.schedule.learning.isEmpty {
             self.lastFrom = ListType.LEARNING
-            return self.schedule.learingCard.first
+            return self.schedule.learingCard.first ?? LearningCard.empty()
         }
         
-        return nil
+        return LearningCard.empty()
     }
     
     private func moveCard(_ listFrom: ListType, _ idx: Int, _ listTo: ListType) {
@@ -84,7 +84,7 @@ class ScheduleContext {
         return result
     }
     
-    func apply(_ card: LearningCard, _ choice: LearningChoice) -> LearningCard? {
+    func apply(_ card: LearningCard, _ choice: LearningChoice) -> LearningCard {
         let result = self.logic.getCardNext(card, choice)
         
         var nextCard = card.update {

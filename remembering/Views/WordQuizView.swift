@@ -12,29 +12,31 @@ struct WordQuizView: View {
     @State var displayAnswerCard = false
     @State var isBookmarked: Bool = false
     @State var index = 0
-    @State var studyFinished: Bool = false
-    @State var currentCard: LearningCard?
+    @State var studyFinished: Bool
+    @State var currentCard: LearningCard
     
     let cfg: SuperMemo2Config
     let scheduler: SuperMemoScheduler
     let ctx: ScheduleContext
     
     init() {
-        self.cfg = getDefaultSuperMemo2Config()
-        self.scheduler = SuperMemoScheduler(cfg: self.cfg)
+        let cfg = getDefaultSuperMemo2Config()
+        let scheduler = SuperMemoScheduler(cfg: cfg)
         
         // Handle and show different
-        let schedule = try! self.scheduler.getSchedule(Date())
-        
-        print("init()", schedule)
-        if schedule.status == .FINISHED {
-            self.studyFinished = true
-        }
+        let schedule = try! scheduler.getSchedule(Date())
+        let studyFinished = (schedule.status == .FINISHED)
 
-        self.ctx = ScheduleContext(schedule: schedule, supermemo: SuperMemo2(cfg: self.cfg))
-        self.currentCard = self.ctx.next()
+        let ctx = ScheduleContext(schedule: schedule, supermemo: SuperMemo2(cfg: cfg))
+        let currentCard = ctx.next()
+
+        // @State 초기값 설정
+        _studyFinished = State(initialValue: studyFinished || currentCard.isEmpty)
+        _currentCard = State(initialValue: currentCard)
         
-        print(self.currentCard)
+        self.cfg = cfg
+        self.scheduler = scheduler
+        self.ctx = ctx
     }
     
     var body: some View {
@@ -44,7 +46,7 @@ struct WordQuizView: View {
                     GeometryReader { geometry in
                         VStack {
                             VStack {
-                                Text(currentCard?.data?.question ?? "ERROR")
+                                Text(currentCard.data?.question ?? "ERROR")
                                     .padding(10)
                                     .fontWeight(.bold)
                                     .font(.largeTitle)
@@ -69,12 +71,17 @@ struct WordQuizView: View {
                                             .padding(.top, 16)
                                     }
                                     VStack {
-                                        Text(currentCard?.data?.description.meaning ?? "ERROR")
+                                        Text(currentCard.data?.description.meaning ?? "ERROR")
                                             .font(.largeTitle)
                                             .padding(.bottom, 8)
                                         HStack {
                                             Image(systemName: "speaker.wave.2.fill")
-                                            Text(currentCard?.data?.description.meaning ?? "ERROR")
+                                            Text(currentCard.data?.description.meaning ?? "ERROR")
+                                        }
+                                        .onTapGesture {
+                                            if let meaning = currentCard.data?.description.meaning {
+                                                speakJapanese(meaning)
+                                            }
                                         }
                                     }
                                 }
@@ -104,12 +111,14 @@ struct WordQuizView: View {
                     VStack {
                         Spacer()
                         if self.displayAnswerCard {
-                            let choices = self.ctx.getCardChoices(self.currentCard!)
+                            let choices = self.ctx.getCardChoices(self.currentCard)
                             
                             WordCardAction(
                                 retryMinute: choices.retry, difficultyMinute: choices.difficult, correctMinute: choices.correct, easyMinute: choices.easy,
                                 onButtonSelected: { action in
-                                    if let nextCard = self.ctx.apply(self.currentCard!, action) {
+                                    let nextCard = self.ctx.apply(self.currentCard, action)
+                                    
+                                    if nextCard.isEmpty {
                                         self.currentCard = nextCard
                                         self.displayAnswerCard.toggle()
                                     } else {

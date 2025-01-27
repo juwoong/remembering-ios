@@ -26,6 +26,7 @@ struct LearningCard: SQLModel {
     var lastReview: Date? = nil
     var nextReview: Date? = nil
     var data: ContentDataModel? = nil
+    var isEmpty: Bool = false
     
     static func parse(stmt: OpaquePointer?) -> Self {
         let id = Int(sqlite3_column_int(stmt, 0))
@@ -49,6 +50,10 @@ struct LearningCard: SQLModel {
             lastReview: lastReview,
             nextReview: nextReview
         )
+    }
+    
+    static func empty() -> Self {
+        return LearningCard(dataId: 0, phase: LearningPhase.NEW, interval: 0, ease: 0.0, isEmpty: true)
     }
     
     func toString() -> String {
