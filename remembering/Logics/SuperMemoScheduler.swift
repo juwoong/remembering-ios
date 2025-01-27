@@ -133,12 +133,27 @@ class SuperMemoScheduler {
     }
     
     func getSchedule(_ now: Date) throws -> LearningSchedule {
-        let schedules = SQLiteDatabase
+        let openSchedules = SQLiteDatabase
             .read(sql: "SELECT * FROM schedules WHERE status IN (\(ScheduleState.NOT_STARTED.rawValue), \(ScheduleState.IN_PROGRESS.rawValue))", to: LearningSchedule.self)
         
-        if !schedules.isEmpty {
+        let today = startOfDay(now)
+        if !openSchedules.isEmpty {
             print("schedule exists")
-            return fillScheduleInstance(schedules[0])
+            let updatedSchedule = fillScheduleInstance(openSchedules[0]).update {
+                $0.date = today
+            }
+            
+            if !SQLiteDatabase.update(updatedSchedule) {
+                throw LearningScheduleError.failedToUpdateLearningSchedule(updatedSchedule.toString())
+            }
+            
+            return updatedSchedule
+        }
+        
+        let todaySchedule = SQLiteDatabase.read(sql: "SELECT * FROM schedules WHERE date='\(dateToSQLString(today))'", to: LearningSchedule.self)
+        
+        if !todaySchedule.isEmpty {
+            return todaySchedule[0]
         }
         
         print("schedule not exists.. creating new one")
@@ -163,6 +178,7 @@ class SuperMemoScheduler {
             $0.exponentials = exponentials.map { $0.id }
             $0.createdCard = newCards
             $0.exponentialCard = exponentials
+            $0.status = .IN_PROGRESS
         }
         
         if !SQLiteDatabase.update(resultSchedule) {

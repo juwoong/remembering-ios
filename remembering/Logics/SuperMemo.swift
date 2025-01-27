@@ -93,9 +93,9 @@ class SuperMemo2{
                 let nextInterval = (self.cfg.learnIntervals[card.step] + self.cfg.learnIntervals[card.step+1]) / 2
                 return SuperMemo2Result(.LEARN, step: 0, interval: nextInterval)
             }
-            return SuperMemo2Result(.LEARN, step: 1)
+            return SuperMemo2Result(.LEARN, step: card.step, interval: self.cfg.learnIntervals[card.step])
         case .GOOD:
-            if card.step + 1 == self.cfg.learnIntervals.count {
+            if card.step + 1 >= self.cfg.learnIntervals.count {
                 return SuperMemo2Result(.EXPONENTIAL, step: nil, ease: cfg.defaultEase, interval: cfg.graduatingInterval)
             }
             return SuperMemo2Result(.LEARN, step: card.step + 1, interval: cfg.learnIntervals[card.step+1])
@@ -120,10 +120,9 @@ class SuperMemo2{
                 Int(Double(card.interval) * Global.LAPSE_INTERVAL_MULTIPLIER),
                 SuperMemo2.daysToMinutes(cfg.minDays)
             )
-            // TODO: appliy fuzzed intervals
+            let fuzzInterval = self.getFuzzInterval(Double(nextInterval))
             
-            
-            return SuperMemo2Result(.EXPONENTIAL, ease: nextEase, interval: nextInterval, leech: card.leech + 1)
+            return SuperMemo2Result(.EXPONENTIAL, ease: nextEase, interval: fuzzInterval, leech: card.leech + 1)
         case .HARD:
             let nextEase = max(1.3, card.ease * 0.85)
             let nextInterval = min(

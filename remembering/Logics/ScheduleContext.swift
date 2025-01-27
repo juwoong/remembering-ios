@@ -77,7 +77,11 @@ class ScheduleContext {
     }
     
     func getCardChoices(_ card: LearningCard) -> SuperMemoChoiceResult {
-        return self.logic.getExpectIntervals(card)
+        print(card)
+        let result =  self.logic.getExpectIntervals(card)
+        
+        print("expecetd", result)
+        return result
     }
     
     func apply(_ card: LearningCard, _ choice: LearningChoice) -> LearningCard? {
@@ -119,5 +123,14 @@ class ScheduleContext {
             shortTermCount: self.schedule.learning.count,
             newWordCount: self.schedule.created.count
         )
+    }
+    
+    func finishSchedule() {
+        self.schedule = schedule.update {
+            $0.status = .FINISHED
+        }
+        
+        // TODO: fix this to handle all things
+        let _  = SQLiteDatabase.update(self.schedule)
     }
 }

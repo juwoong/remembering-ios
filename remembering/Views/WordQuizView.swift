@@ -13,7 +13,7 @@ struct WordQuizView: View {
     @State var isBookmarked: Bool = false
     @State var index = 0
     @State var studyFinished: Bool = false
-    @State var currentCard: LearningCard
+    @State var currentCard: LearningCard?
     
     let cfg: SuperMemo2Config
     let scheduler: SuperMemoScheduler
@@ -25,12 +25,16 @@ struct WordQuizView: View {
         
         // Handle and show different
         let schedule = try! self.scheduler.getSchedule(Date())
+        
+        print("init()", schedule)
+        if schedule.status == .FINISHED {
+            self.studyFinished = true
+        }
 
         self.ctx = ScheduleContext(schedule: schedule, supermemo: SuperMemo2(cfg: self.cfg))
-        self.currentCard = self.ctx.next()!
+        self.currentCard = self.ctx.next()
         
-        let choices = self.ctx.getCardChoices(self.currentCard)
-        print("choices", choices, "card", self.currentCard)
+        print(self.currentCard)
     }
     
     var body: some View {
@@ -40,7 +44,7 @@ struct WordQuizView: View {
                     GeometryReader { geometry in
                         VStack {
                             VStack {
-                                Text(currentCard.data?.question ?? "ERROR")
+                                Text(currentCard?.data?.question ?? "ERROR")
                                     .padding(10)
                                     .fontWeight(.bold)
                                     .font(.largeTitle)
@@ -65,12 +69,12 @@ struct WordQuizView: View {
                                             .padding(.top, 16)
                                     }
                                     VStack {
-                                        Text(currentCard.data?.description.meaning ?? "ERROR")
+                                        Text(currentCard?.data?.description.meaning ?? "ERROR")
                                             .font(.largeTitle)
                                             .padding(.bottom, 8)
                                         HStack {
                                             Image(systemName: "speaker.wave.2.fill")
-                                            Text(currentCard.data?.description.meaning ?? "ERROR")
+                                            Text(currentCard?.data?.description.meaning ?? "ERROR")
                                         }
                                     }
                                 }
@@ -100,16 +104,17 @@ struct WordQuizView: View {
                     VStack {
                         Spacer()
                         if self.displayAnswerCard {
-                            let choices = self.ctx.getCardChoices(self.currentCard)
+                            let choices = self.ctx.getCardChoices(self.currentCard!)
                             
                             WordCardAction(
-                                retryMinute: choices.retry, difficultyMinute: choices.difficult, correctMinute: choices.difficult, easyMinute: choices.easy,
+                                retryMinute: choices.retry, difficultyMinute: choices.difficult, correctMinute: choices.correct, easyMinute: choices.easy,
                                 onButtonSelected: { action in
-                                    if let nextCard = self.ctx.apply(self.currentCard, action) {
+                                    if let nextCard = self.ctx.apply(self.currentCard!, action) {
                                         self.currentCard = nextCard
                                         self.displayAnswerCard.toggle()
                                     } else {
                                         self.studyFinished.toggle()
+                                        self.ctx.finishSchedule()
                                     }
                                 }
                             )

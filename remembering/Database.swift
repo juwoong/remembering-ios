@@ -74,24 +74,14 @@ class SQLiteDatabase {
         let destPath = getDatabasePath()
         
         print("getDatabasePath", destPath)
-        if FileManager.default.fileExists(atPath: destPath) {
-            try! FileManager.default.removeItem(atPath: destPath)
+        
+        if !FileManager.default.fileExists(atPath: destPath) {
+            do {
+                try FileManager.default.copyItem(atPath: originPath!, toPath: destPath)
+            } catch let error as NSError {
+                print("error occurs during database initialization: \(error)")
+            }
         }
-        
-        do {
-            try FileManager.default.copyItem(atPath: originPath!, toPath: destPath)
-        } catch let error as NSError {
-            print("error occurs during database initialization: \(error)")
-        }
-        
-        
-//        if !FileManager.default.fileExists(atPath: destPath) {
-//            do {
-//                try FileManager.default.copyItem(atPath: originPath!, toPath: destPath)
-//            } catch let error as NSError {
-//                print("error occurs during database initialization: \(error)")
-//            }
-//        }
     }
     
     static func prepareDatabase() -> OpaquePointer? {
@@ -163,7 +153,7 @@ class SQLiteDatabase {
         }
         
         var statement: OpaquePointer?
-        if sqlite3_prepare_v2(database, model.insertQuery(), -1, &statement, nil) != SQLITE_OK {
+        if sqlite3_prepare_v2(database, model.updateQuery(), -1, &statement, nil) != SQLITE_OK {
             let errmsg = String(cString: sqlite3_errmsg(database))
             print("Error to prepare statement: \(errmsg)")
             
