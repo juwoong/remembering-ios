@@ -118,7 +118,7 @@ struct WordQuizView: View {
                                 onButtonSelected: { action in
                                     let nextCard = self.ctx.apply(self.currentCard, action)
                                     
-                                    if nextCard.isEmpty {
+                                    if !nextCard.isEmpty {
                                         self.currentCard = nextCard
                                         self.displayAnswerCard.toggle()
                                     } else {
