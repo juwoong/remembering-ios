@@ -212,6 +212,8 @@ class SuperMemo2{
             results.append(SuperMemo2.humanizeMinutes(result.interval!))
         }
         
+        print(card, results)
+        
         return SuperMemoChoiceResult(retry: results[0], difficult: results[1], correct: results[2], easy: results[3])
     }
 

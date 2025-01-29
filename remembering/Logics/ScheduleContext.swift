@@ -44,7 +44,7 @@ class ScheduleContext {
         return LearningCard.empty()
     }
     
-    private func moveCard(_ listFrom: ListType, _ idx: Int, _ listTo: ListType) {
+    private func changeCard(_ listFrom: ListType, _ idx: Int, _ listTo: ListType, _ newItem: LearningCard) {
         var targetId: Int? = nil
         var target: LearningCard? = nil
         
@@ -62,16 +62,16 @@ class ScheduleContext {
         if targetId != nil {
             if listTo == ListType.CREATED {
                 self.schedule.created.append(targetId!)
-                self.schedule.createdCard.append(target!)
+                self.schedule.createdCard.append(newItem)
             } else if listTo == ListType.EXPONENTIAL {
                 self.schedule.exponentials.append(targetId!)
-                self.schedule.exponentialCard.append(target!)
+                self.schedule.exponentialCard.append(newItem)
             } else if listTo == ListType.LEARNING {
                 self.schedule.learning.append(targetId!)
-                self.schedule.learingCard.append(target!)
+                self.schedule.learingCard.append(newItem)
             } else if listTo == ListType.DONE {
                 self.schedule.done.append(targetId!)
-                self.schedule.doneCard.append(target!)
+                self.schedule.doneCard.append(newItem)
             }
         }
     }
@@ -104,12 +104,13 @@ class ScheduleContext {
                 $0.lastReview = now
             }
             
-            self.moveCard(self.lastFrom!, 0, .DONE)
+            self.changeCard(self.lastFrom!, 0, .DONE, nextCard)
         } else if result.phase == LearningPhase.LEARN {
-            self.moveCard(self.lastFrom!, 0, .LEARNING)
+            self.changeCard(self.lastFrom!, 0, .LEARNING, nextCard)
         } else if result.phase == LearningPhase.RELEARN {
-            self.moveCard(self.lastFrom!, 0, .LEARNING)
+            self.changeCard(self.lastFrom!, 0, .LEARNING, nextCard)
         }
+
         
         let _ = SQLiteDatabase.update(nextCard)
         let _ = SQLiteDatabase.update(self.schedule)

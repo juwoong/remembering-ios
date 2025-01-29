@@ -26,15 +26,6 @@ struct MainView: View {
                     }
                 }
                 
-//                NavigationLink(destination: EmptyView()) {
-//                    VStack {
-//                        HStack {
-//                            Image(systemName: "calendar").foregroundStyle(.white)
-//                            Text("오늘의 레슨").foregroundStyle(.white)
-//                        }.padding(10)
-//                    }.background(Color(hex: "#3B6790"), in: RoundedRectangle(cornerRadius: 25))
-//                }
-         
                 Button("나의 단어", systemImage: "person.fill") {}.buttonStyle(.bordered)
             }
             .navigationBarTitle("Rememberin: Japanese Word")
