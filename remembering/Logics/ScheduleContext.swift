@@ -134,4 +134,8 @@ class ScheduleContext {
         // TODO: fix this to handle all things
         let _  = SQLiteDatabase.update(self.schedule)
     }
+    
+    func isFinished() -> Bool {
+        return self.schedule.status == .FINISHED
+    }
 }

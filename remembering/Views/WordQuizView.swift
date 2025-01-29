@@ -39,6 +39,7 @@ struct WordQuizView: View {
         self.ctx = ctx
     }
     
+    
     var body: some View {
         NavigationView {
             if !self.studyFinished {
@@ -139,6 +140,10 @@ struct WordQuizView: View {
                 }
             } else {
                 StudyFinishView()
+            }
+        }.onAppear {
+            if self.ctx.isFinished() {
+                self.studyFinished = true
             }
         }
     }
