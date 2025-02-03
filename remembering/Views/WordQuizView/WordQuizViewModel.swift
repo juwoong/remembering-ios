@@ -6,16 +6,22 @@
 //
 import SwiftUI
 
-protocol WordQuizViewMdoelProtocol: ObservableObject {
+protocol WordQuizViewModelProtocol: ObservableObject {
     var displayAnswerCard: Bool { get set }
     var isBookmarked: Bool { get set }
     var studyFinished: Bool { get set }
     var currentCard: LearningCard { get set }
+    
+    func onCardTap()
+    func onActionSelected(action: LearningChoice)
+    func speakPronounciation()
+    func getChoices() -> SuperMemoChoiceResult
+    func getStatus() -> (longTermCount: Int, shortTermCount: Int, newWordCount: Int)
+    func checkFinished()
 }
 
 
-class WordQuizViewModel: WordQuizViewMdoelProtocol {
-    
+class WordQuizViewModel: WordQuizViewModelProtocol {
     @Published var displayAnswerCard = false
     @Published var isBookmarked: Bool = false
     @Published var studyFinished: Bool
@@ -81,5 +87,54 @@ class WordQuizViewModel: WordQuizViewMdoelProtocol {
         if self.ctx.isFinished() {
             self.studyFinished = true
         }
+    }
+}
+
+
+class MockWordQuizViewModel: WordQuizViewModelProtocol {
+    @Published var displayAnswerCard = false
+    @Published var isBookmarked: Bool = false
+    @Published var studyFinished: Bool
+    @Published var currentCard: LearningCard
+    
+    init() {
+        studyFinished = false
+        currentCard = LearningCard(dataId: 1, phase: .NEW, interval: 100, ease: 0.0)
+        
+        currentCard = currentCard.update {
+            $0.data = ContentDataModel(id: 1, question: "大好き", description: DescriptionJSON(pronunciation: "daisuki", meaning: "좋아해"), priority: 1, isGenerated: true)
+        }
+    }
+    
+    func onCardTap() {
+        if !displayAnswerCard {
+            displayAnswerCard = true
+        }
+    }
+    
+    func onActionSelected(action: LearningChoice) {
+        displayAnswerCard = false
+    }
+    
+    func speakPronounciation() {
+        if let pronounciation = currentCard.data?.question {
+            speakJapanese(pronounciation)
+        }
+    }
+    
+    func getChoices() -> SuperMemoChoiceResult {
+        return SuperMemoChoiceResult(retry: "<1m", difficult: "<10m", correct: "1d", easy: "4d")
+    }
+    
+    func getStatus() -> (longTermCount: Int, shortTermCount: Int, newWordCount: Int) {
+        return (
+            longTermCount: 10,
+            shortTermCount: 20,
+            newWordCount: 30
+        )
+    }
+    
+    func checkFinished() {
+        studyFinished = false
     }
 }

@@ -6,8 +6,13 @@
 //
 import SwiftUI
 
-struct WordQuizView: View {
-    @StateObject private var viewModel = WordQuizViewModel()
+struct WordQuizView<ViewModel: WordQuizViewModelProtocol>: View {
+    @StateObject private var viewModel: ViewModel
+
+    // 외부에서 주입할 수 있도록 이니셜라이저 추가
+    init(viewModel: ViewModel) {
+        _viewModel = StateObject(wrappedValue: viewModel)
+    }
     
     var body: some View {
         NavigationView {
@@ -46,7 +51,7 @@ struct WordQuizView: View {
                                             .padding(.bottom, 8)
                                         HStack {
                                             Image(systemName: "speaker.wave.2.fill")
-                                            Text(viewModel.currentCard.data?.description.meaning ?? "ERROR")
+                                            Text(viewModel.currentCard.data?.description.pronunciation ?? "ERROR")
                                         }
                                         .onTapGesture {
                                             viewModel.speakPronounciation()
@@ -108,5 +113,5 @@ struct WordQuizView: View {
 
 
 #Preview {
-    WordQuizView()
+    WordQuizView(viewModel: MockWordQuizViewModel())
 }

@@ -19,7 +19,7 @@ struct MainView: View {
                     }
                 }
                 
-                NavigationLink(destination: WordQuizView()) {
+                NavigationLink(destination: WordQuizView(viewModel: WordQuizViewModel())) {
                     HStack {
                         Image(systemName: "calendar")
                         Text("오늘의 레슨")
