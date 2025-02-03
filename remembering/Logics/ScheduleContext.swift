@@ -13,12 +13,6 @@ enum ListType: Int {
     case DONE = 4
 }
 
-struct ScheduleRemainCardResult {
-    let longTermCount: Int
-    let shortTermCount: Int
-    let newWordCount: Int
-}
-
 class ScheduleContext {
     private var schedule: LearningSchedule
     private let logic: SuperMemo2
@@ -118,8 +112,8 @@ class ScheduleContext {
         return self.next()
     }
     
-    func getRemainCardStatus() -> ScheduleRemainCardResult {
-        return ScheduleRemainCardResult(
+    func getRemainCardStatus() -> (longTermCount: Int, shortTermCount: Int, newWordCount: Int) {
+        return (
             longTermCount: self.schedule.exponentials.count,
             shortTermCount: self.schedule.learning.count,
             newWordCount: self.schedule.created.count

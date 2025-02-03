@@ -7,47 +7,16 @@
 import SwiftUI
 
 struct WordQuizView: View {
-
-    @State var termCount = 21
-    @State var displayAnswerCard = false
-    @State var isBookmarked: Bool = false
-    @State var index = 0
-    @State var studyFinished: Bool
-    @State var currentCard: LearningCard
-    
-    let cfg: SuperMemo2Config
-    let scheduler: SuperMemoScheduler
-    let ctx: ScheduleContext
-    
-    init() {
-        let cfg = getDefaultSuperMemo2Config()
-        let scheduler = SuperMemoScheduler(cfg: cfg)
-        
-        // Handle and show different
-        let schedule = try! scheduler.getSchedule(Date())
-        let studyFinished = (schedule.status == .FINISHED)
-
-        let ctx = ScheduleContext(schedule: schedule, supermemo: SuperMemo2(cfg: cfg))
-        let currentCard = ctx.next()
-
-        // @State 초기값 설정
-        _studyFinished = State(initialValue: studyFinished || currentCard.isEmpty)
-        _currentCard = State(initialValue: currentCard)
-        
-        self.cfg = cfg
-        self.scheduler = scheduler
-        self.ctx = ctx
-    }
-    
+    @StateObject private var viewModel = WordQuizViewModel()
     
     var body: some View {
         NavigationView {
-            if !self.studyFinished {
+            if !viewModel.studyFinished {
                 ZStack {
                     GeometryReader { geometry in
                         VStack {
                             VStack {
-                                Text(currentCard.data?.question ?? "ERROR")
+                                Text(viewModel.currentCard.data?.question ?? "ERROR")
                                     .padding(10)
                                     .fontWeight(.bold)
                                     .font(.largeTitle)
@@ -56,33 +25,31 @@ struct WordQuizView: View {
                             .background(Color.gray.opacity(0.2))
                             .cornerRadius(30)
                             
-                            if self.displayAnswerCard {
+                            if viewModel.displayAnswerCard {
                                 ZStack{
                                     HStack {
                                         Spacer()
                                         VStack {
                                             Image(
-                                                systemName: self.isBookmarked ? "star.fill" : "star"
-                                            ).foregroundColor(self.isBookmarked ? Color.orange : Color.black
+                                                systemName: viewModel.isBookmarked ? "star.fill" : "star"
+                                            ).foregroundColor(viewModel.isBookmarked ? Color.orange : Color.black
                                             ).onTapGesture {
-                                                self.isBookmarked.toggle()
+                                                viewModel.isBookmarked.toggle()
                                             }
                                             Spacer()
                                         }.padding(.trailing, 16)
                                             .padding(.top, 16)
                                     }
                                     VStack {
-                                        Text(currentCard.data?.description.meaning ?? "ERROR")
+                                        Text(viewModel.currentCard.data?.description.meaning ?? "ERROR")
                                             .font(.largeTitle)
                                             .padding(.bottom, 8)
                                         HStack {
                                             Image(systemName: "speaker.wave.2.fill")
-                                            Text(currentCard.data?.description.meaning ?? "ERROR")
+                                            Text(viewModel.currentCard.data?.description.meaning ?? "ERROR")
                                         }
                                         .onTapGesture {
-                                            if let meaning = currentCard.data?.description.meaning {
-                                                speakJapanese(meaning)
-                                            }
+                                            viewModel.speakPronounciation()
                                         }
                                     }
                                 }
@@ -104,32 +71,24 @@ struct WordQuizView: View {
                     .padding(.bottom, 92)
                     .padding(.top, 20)
                     .onTapGesture {
-                        if self.displayAnswerCard == false {
-                            self.displayAnswerCard.toggle()
+                        if viewModel.displayAnswerCard == false {
+                            viewModel.displayAnswerCard.toggle()
                         }
                     }
                     
                     VStack {
                         Spacer()
-                        if self.displayAnswerCard {
-                            let choices = self.ctx.getCardChoices(self.currentCard)
+                        if viewModel.displayAnswerCard {
+                            let choices = viewModel.getChoices()
                             
                             WordCardAction(
                                 retryMinute: choices.retry, difficultyMinute: choices.difficult, correctMinute: choices.correct, easyMinute: choices.easy,
                                 onButtonSelected: { action in
-                                    let nextCard = self.ctx.apply(self.currentCard, action)
-                                    
-                                    if !nextCard.isEmpty {
-                                        self.currentCard = nextCard
-                                        self.displayAnswerCard.toggle()
-                                    } else {
-                                        self.studyFinished.toggle()
-                                        self.ctx.finishSchedule()
-                                    }
+                                    viewModel.onActionSelected(action: action)
                                 }
                             )
                         } else {
-                            let status = self.ctx.getRemainCardStatus()
+                            let status = viewModel.getStatus()
                             WordQuizStatus(
                                 longTermCount: status.longTermCount,
                                 shortTermCount: status.shortTermCount,
@@ -142,9 +101,7 @@ struct WordQuizView: View {
                 StudyFinishView()
             }
         }.onAppear {
-            if self.ctx.isFinished() {
-                self.studyFinished = true
-            }
+            viewModel.checkFinished()
         }
     }
 }
