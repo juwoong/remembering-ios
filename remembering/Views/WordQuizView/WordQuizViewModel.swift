@@ -18,6 +18,8 @@ protocol WordQuizViewModelProtocol: ObservableObject {
     func getChoices() -> SuperMemoChoiceResult
     func getStatus() -> (longTermCount: Int, shortTermCount: Int, newWordCount: Int)
     func checkFinished()
+    func setStartDate(_ date: Date)
+    func setEndDate(_ date: Date) -> Double
 }
 
 
@@ -30,6 +32,9 @@ class WordQuizViewModel: WordQuizViewModelProtocol {
     let cfg: SuperMemo2Config
     let scheduler: SuperMemoScheduler
     let ctx: ScheduleContext
+    
+    var startDate: Date?
+    var endDate: Date?
     
     init() {
         let cfg = getDefaultSuperMemo2Config()
@@ -88,6 +93,26 @@ class WordQuizViewModel: WordQuizViewModelProtocol {
             self.studyFinished = true
         }
     }
+    
+    func setStartDate(_ date: Date) {
+        self.startDate = date
+    }
+    
+    func setEndDate(_ date: Date) -> Double {
+        self.endDate = date
+        
+        if let start = self.startDate {
+            if let end = self.endDate {
+                let res = end.timeIntervalSince(start)
+                print("Time elapsed: " + String(format: "%.1f", res) + "sec")
+                
+                return res
+            }
+        }
+        print("Time elapsed: 0.0 sec")
+        
+        return 0.0
+    }
 }
 
 
@@ -136,5 +161,12 @@ class MockWordQuizViewModel: WordQuizViewModelProtocol {
     
     func checkFinished() {
         studyFinished = false
+    }
+    
+    func setStartDate(_ date: Date) {
+    }
+    
+    func setEndDate(_ date: Date) -> Double {
+        return 0.0
     }
 }

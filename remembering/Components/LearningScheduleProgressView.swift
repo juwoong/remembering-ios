@@ -17,7 +17,7 @@ struct LearingScheduleProgressView: View {
 
     var body: some View {
         VStack {                                           //총값: 100
-            ProgressView(String(format: "%.1f%%"), value: self.viewModel.progressAmount, total: self.totalCount)
+            ProgressView(String(format: "%.1f%%", self.viewModel.progressAmount), value: self.viewModel.progressAmount, total: self.totalCount)
                 .padding()
         }
     }

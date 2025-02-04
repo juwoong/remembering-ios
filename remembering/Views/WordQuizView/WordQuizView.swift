@@ -8,10 +8,11 @@ import SwiftUI
 
 struct WordQuizView<ViewModel: WordQuizViewModelProtocol>: View {
     @StateObject private var viewModel: ViewModel
-
+    
     // 외부에서 주입할 수 있도록 이니셜라이저 추가
     init(viewModel: ViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
+        viewModel.setStartDate(Date())
     }
     
     var body: some View {
@@ -78,6 +79,7 @@ struct WordQuizView<ViewModel: WordQuizViewModelProtocol>: View {
                     .onTapGesture {
                         if viewModel.displayAnswerCard == false {
                             viewModel.displayAnswerCard.toggle()
+                            viewModel.setStartDate(Date())
                         }
                     }
                     
@@ -90,6 +92,7 @@ struct WordQuizView<ViewModel: WordQuizViewModelProtocol>: View {
                                 retryMinute: choices.retry, difficultyMinute: choices.difficult, correctMinute: choices.correct, easyMinute: choices.easy,
                                 onButtonSelected: { action in
                                     viewModel.onActionSelected(action: action)
+                                    viewModel.setEndDate(Date())
                                 }
                             )
                         } else {
