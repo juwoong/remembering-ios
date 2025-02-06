@@ -44,9 +44,22 @@
 		F1E7DEC99DDA21DBAC841C61 /* Pods-remembering.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-remembering.debug.xcconfig"; path = "Target Support Files/Pods-remembering/Pods-remembering.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		AF7817062D55011500E328A0 /* Exceptions for "remembering" folder in "remembering" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = AFD935222D31A09B001BD046 /* remembering */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		AFD935252D31A09B001BD046 /* remembering */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				AF7817062D55011500E328A0 /* Exceptions for "remembering" folder in "remembering" target */,
+			);
 			path = remembering;
 			sourceTree = "<group>";
 		};
@@ -529,6 +542,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = remembering/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "JLPT 5급";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -563,6 +577,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = remembering/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "JLPT 5급";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
