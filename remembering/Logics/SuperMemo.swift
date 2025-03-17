@@ -223,7 +223,7 @@ class SuperMemo2{
 private extension SuperMemo2 {
     func getFuzzRange(_ interval: Double) -> (Int, Int) {
         var delta: Double = 1.0
-        for i in 0...Global.FUZZ_RANGE.count {
+        for i in 0...(Global.FUZZ_RANGE.count-1) {
             let range = Global.FUZZ_RANGE[i]
             
             delta += range.factor * max(min(interval, range.end) - range.start, 0.0)
