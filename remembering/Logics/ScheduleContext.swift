@@ -32,7 +32,7 @@ class ScheduleContext {
             return self.schedule.exponentialCard.first ?? LearningCard.empty()
         } else if !self.schedule.learning.isEmpty {
             self.lastFrom = ListType.LEARNING
-            return self.schedule.learingCard.first ?? LearningCard.empty()
+            return self.schedule.learningCard.first ?? LearningCard.empty()
         }
         
         return LearningCard.empty()
@@ -50,7 +50,7 @@ class ScheduleContext {
             target = self.schedule.exponentialCard.remove(at: idx)
         } else if listFrom == ListType.LEARNING {
             targetId = self.schedule.learning.remove(at: idx)
-            target = self.schedule.learingCard.remove(at: idx)
+            target = self.schedule.learningCard.remove(at: idx)
         }
         
         if targetId != nil {
@@ -62,7 +62,7 @@ class ScheduleContext {
                 self.schedule.exponentialCard.append(newItem)
             } else if listTo == ListType.LEARNING {
                 self.schedule.learning.append(targetId!)
-                self.schedule.learingCard.append(newItem)
+                self.schedule.learningCard.append(newItem)
             } else if listTo == ListType.DONE {
                 self.schedule.done.append(targetId!)
                 self.schedule.doneCard.append(newItem)

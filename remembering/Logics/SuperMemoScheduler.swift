@@ -127,7 +127,7 @@ class SuperMemoScheduler {
         
         return schedule.update {
             $0.createdCard = createdCards
-            $0.learingCard = learningCards
+            $0.learningCard = learningCards
             $0.exponentialCard = reviewedCard
         }
     }

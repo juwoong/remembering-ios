@@ -24,7 +24,7 @@ struct LearningSchedule: SQLModel {
     var done: [Int]
     
     var createdCard: [LearningCard] = []
-    var learingCard: [LearningCard] = []
+    var learningCard: [LearningCard] = []
     var exponentialCard: [LearningCard] = []
     var doneCard: [LearningCard] = []
     

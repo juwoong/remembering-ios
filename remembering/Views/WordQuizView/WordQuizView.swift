@@ -14,65 +14,84 @@ struct WordQuizView<ViewModel: WordQuizViewModelProtocol>: View {
         _viewModel = StateObject(wrappedValue: viewModel)
         viewModel.setStartDate(Date())
     }
-    
+
     var body: some View {
         NavigationView {
             if !viewModel.studyFinished {
                 ZStack {
                     GeometryReader { geometry in
-                        VStack {
+                        VStack(spacing: 20) {
+                            // 질문 카드
                             VStack {
                                 Text(viewModel.currentCard.data?.question ?? "ERROR")
-                                    .padding(10)
-                                    .fontWeight(.bold)
-                                    .font(.largeTitle)
+                                    .padding(16)
+                                    .fontWeight(.semibold)
+                                    .font(.system(size: 32))
+                                    .foregroundColor(.primary)
                             }
-                            .frame(width: geometry.size.width, height: geometry.size.height / 2)
-                            .background(Color.gray.opacity(0.2))
-                            .cornerRadius(30)
+                            .cardStyle(
+                                phase: viewModel.currentCard.phase,
+                                width: geometry.size.width * 0.9,
+                                height: geometry.size.height * 0.4
+                            )
                             
+                            // 답변 카드
                             if viewModel.displayAnswerCard {
-                                ZStack{
+                                ZStack {
                                     HStack {
                                         Spacer()
                                         VStack {
-                                            Image(
-                                                systemName: viewModel.isBookmarked ? "star.fill" : "star"
-                                            ).foregroundColor(viewModel.isBookmarked ? Color.orange : Color.black
-                                            ).onTapGesture {
-                                                viewModel.isBookmarked.toggle()
-                                            }
+                                            Image(systemName: viewModel.isBookmarked ? "star.fill" : "star")
+                                                .foregroundColor(viewModel.isBookmarked ? .orange : .gray.opacity(0.5))
+                                                .font(.system(size: 24))
+                                                .onTapGesture {
+                                                    viewModel.isBookmarked.toggle()
+                                                }
                                             Spacer()
-                                        }.padding(.trailing, 16)
-                                            .padding(.top, 16)
+                                        }.padding(.trailing, 20)
+                                            .padding(.top, 20)
                                     }
                                     VStack {
                                         Text(viewModel.currentCard.data?.description.meaning ?? "ERROR")
-                                            .font(.largeTitle)
-                                            .padding(.bottom, 8)
+                                            .font(.system(size: 32))
+                                            .foregroundColor(.primary)
+                                            .padding(.bottom, 12)
                                         HStack {
                                             Image(systemName: "speaker.wave.2.fill")
+                                                .foregroundColor(.blue)
                                             Text(viewModel.currentCard.data?.description.pronunciation ?? "ERROR")
+                                                .foregroundColor(.secondary)
                                         }
+                                        .padding(8)
+                                        .background(CardStyle.getPhaseColor(viewModel.currentCard.phase).opacity(0.1))
+                                        .cornerRadius(12)
                                         .onTapGesture {
                                             viewModel.speakPronounciation()
                                         }
                                     }
                                 }
-                                .frame(width: geometry.size.width, height: geometry.size.height / 2)
-                                .background(Color.gray.opacity(0.2))
-                                .cornerRadius(30)
+                                .cardStyle(
+                                    phase: viewModel.currentCard.phase,
+                                    width: geometry.size.width * 0.9,
+                                    height: geometry.size.height * 0.4
+                                )
                             } else {
+                                // 물음표 카드
                                 VStack {
                                     Text("?")
                                         .padding(10)
-                                        .font(.largeTitle)
+                                        .font(.system(size: 40, weight: .bold))
+                                        .foregroundColor(.secondary)
                                 }
-                                .frame(width: geometry.size.width, height: geometry.size.height / 2)
-                                .background(Color.gray.opacity(0.2))
-                                .cornerRadius(30)
+                                .cardStyle(
+                                    phase: viewModel.currentCard.phase,
+                                    width: geometry.size.width * 0.9,
+                                    height: geometry.size.height * 0.4
+                                )
                             }
                         }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .padding(.horizontal)
                     }
                     .padding(.bottom, 92)
                     .padding(.top, 20)
