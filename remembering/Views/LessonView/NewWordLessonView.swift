@@ -10,6 +10,11 @@ struct NewWordLessonView: View {
     
     var body: some View {
         VStack {
+            Text("오늘의 단어")
+                .font(.system(size: 17, weight: .semibold))
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 8)
+            
             // 카드 뷰
             RoundedRectangle(cornerRadius: 16)
                 .fill(.white)
@@ -33,17 +38,22 @@ struct NewWordLessonView: View {
                         }
                     }
                 )
-                .frame(height: 200)
+                .frame(height: 280)
                 .frame(maxHeight: .infinity, alignment: .center)
+
+            
             
             // 프로그레스 바와 텍스트를 붙이기 위한 VStack
-            VStack(spacing: 0) {
+            VStack(spacing: 8) {
+                Text("오늘의 새로운 단어 (\(currentIndex + 1) / 10)")
+                    .font(.caption)
+                    .padding(.bottom, 2)
                 ProgressView(value: Double(currentIndex + 1), total: 10)
                     .frame(maxWidth: .infinity)
                     .padding(.horizontal)
+                    .padding(.vertical, 4)
                 
-                Text("오늘의 새로운 단어 (\(currentIndex + 1) / 10)")
-                    .font(.caption)
+  
             }
         }
         .padding()
